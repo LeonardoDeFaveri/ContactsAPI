@@ -5,8 +5,8 @@
   <artifactId>Contacts</artifactId>
   <version>1.0-SNAPSHOT</version>
   <packaging>jar</packaging>
-  <name>Contact Maven Webapp</name>
-  <url>http://maven.apache.org</url>
+  <name>Contact Maven web service</name>
+  <url>https://github.com/LeonardoDeFaveri/ContactsAPI.git</url>
   <properties>
     <tomcat.version>8.5.23</tomcat.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
