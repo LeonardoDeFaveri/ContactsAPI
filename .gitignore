@@ -1,2 +1,4 @@
-target/
-tomcat.8080/
+target
+tomcat.8080
+.vscode
+.settings
