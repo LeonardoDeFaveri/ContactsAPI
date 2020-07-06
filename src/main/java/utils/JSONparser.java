@@ -2,17 +2,11 @@ package utils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.ArrayList;
-
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import models.Contact;
-import models.Email;
-import models.PhoneNumber;
 import models.User;
-import utils.keys.UserKeys;
 
 /**
  * La classe rappresenta uno strumento utile per effettuare il parsing

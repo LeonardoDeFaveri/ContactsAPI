@@ -46,9 +46,6 @@ public class ContactServlet extends HttpServlet {
         String path = req.getPathInfo();
         if (path == null || path.equals("/")) {
             Map<String, String[]> query = req.getParameterMap();
-            String[] category = query.get("category");
-            String[] name = query.get("name");
-            String[] qname = query.get("qname");
         }
 
         out.flush();
@@ -129,8 +126,6 @@ public class ContactServlet extends HttpServlet {
             while ((line = reader.readLine()) != null) {
                 jsonString.append(line);
             }
-
-            Contact newContact = null;
             
             resp.setStatus(HttpServletResponse.SC_OK);
             resp.setHeader("Location", req.getRequestURL().toString() + contactId);
