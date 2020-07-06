@@ -6,6 +6,7 @@ import java.io.IOException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import models.Contact;
 import models.User;
 
 /**
@@ -65,10 +66,20 @@ public class JSONparser {
      */
     public User getLoginCredentials() {
         try {
-            return new User(
+            User user = (User) this.object.get("user");
+            return user;
+            /*return new User(
                 this.object.getString("email"),
                 this.object.getString("password")
-            );
+            );*/
+        } catch (JSONException ex) {
+            return null;
+        }
+    }
+
+    public Contact getRegistrationCredentials() {
+        try {
+            return null;//new Contact(null, firstName, familyName, secondName, owner, associatedUser, emails, phoneNumbers)
         } catch (JSONException ex) {
             return null;
         }

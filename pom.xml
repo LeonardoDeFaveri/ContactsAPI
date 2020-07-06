@@ -8,7 +8,7 @@
   <name>Contact Maven web service</name>
   <url>https://github.com/LeonardoDeFaveri/ContactsAPI.git</url>
   <properties>
-    <tomcat.version>9.0.36</tomcat.version>
+    <tomcat.version>8.5.23</tomcat.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <java.version>13</java.version>
     <maven.compiler.source>13</maven.compiler.source>
@@ -18,27 +18,27 @@
     <dependency>
         <groupId>org.apache.tomcat.embed</groupId>
         <artifactId>tomcat-embed-core</artifactId>
-        <version>9.0.36</version>
+        <version>${tomcat.version}</version>
     </dependency>
     <dependency>
         <groupId>org.apache.tomcat.embed</groupId>
         <artifactId>tomcat-embed-jasper</artifactId>
-        <version>9.0.36</version>
+        <version>${tomcat.version}</version>
     </dependency>
     <dependency>
         <groupId>org.apache.tomcat</groupId>
         <artifactId>tomcat-jasper</artifactId>
-        <version>9.0.36</version>
+        <version>${tomcat.version}</version>
     </dependency>
     <dependency>
         <groupId>org.apache.tomcat</groupId>
         <artifactId>tomcat-jasper-el</artifactId>
-        <version>9.0.36</version>
+        <version>${tomcat.version}</version>
     </dependency>
     <dependency>
         <groupId>org.apache.tomcat</groupId>
         <artifactId>tomcat-jsp-api</artifactId>
-        <version>9.0.36</version>
+        <version>${tomcat.version}</version>
     </dependency>
     <dependency>
         <groupId>org.json</groupId>
@@ -51,10 +51,9 @@
         <artifactId>mariadb-java-client</artifactId>
         <version>2.6.1</version>
     </dependency>
-
   </dependencies>
   <build>
-    <finalName>contacts</finalName>
+    <finalName>embeddedTomcatSample</finalName>
     <plugins>
         <plugin>
             <groupId>org.codehaus.mojo</groupId>

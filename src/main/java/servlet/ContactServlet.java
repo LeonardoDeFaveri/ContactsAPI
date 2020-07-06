@@ -9,7 +9,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.Map;
 
 import org.json.*;
@@ -25,18 +24,11 @@ import javax.servlet.http.HttpServletResponse;
 
 @WebServlet(name = "ContactsServlet", urlPatterns = { "/contacts/api/*" })
 public class ContactServlet extends HttpServlet {
-    private HashMap<Long, Contact> contacts;
+    private static final long serialVersionUID = -7554494032704522881L;
     private DatabaseManager dbManager;
-
-    /**
-     *
-     */
-    private static final long serialVersionUID = -930386857509367419L;
 
     @Override
     public void init(ServletConfig config) throws ServletException {
-        this.contacts = new HashMap<>();
-
         try {
             this.dbManager = new DatabaseManager();
         } catch (SQLException ex) {
@@ -57,32 +49,8 @@ public class ContactServlet extends HttpServlet {
             String[] category = query.get("category");
             String[] name = query.get("name");
             String[] qname = query.get("qname");
-
-            HashMap<Long, JSONObject> jsonContacts = new HashMap<>();
-            this.contacts.forEach((key, value) -> {
-                jsonContacts.put(key, new JSONObject(value));
-            });
-
-            JSONObject contactsArray = new JSONObject(jsonContacts);
-            resp.setContentType("application/json");
-            out.write(contactsArray.toString());
-        } else {
-            try {
-                long contactId = Long.parseLong(path.substring(1));
-                Contact contact = this.contacts.get(contactId);
-                if (contact == null) {
-                    resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
-                    out.write("Il contatto specificato non esiste");
-                    return;
-                }
-                resp.setContentType("application/json");
-                out.write(new JSONObject(contact).toString());
-            } catch (NumberFormatException ex) {
-                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                out.write("L'id non è stato specificato in un formato valido");
-                return;
-            }
         }
+
         out.flush();
         out.close();
     }
@@ -116,6 +84,10 @@ public class ContactServlet extends HttpServlet {
                     resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
                 }
                 break;
+            
+            case Actions.REGISTER:
+                
+                break;
 
             case Actions.CREATE:
                 break;
@@ -145,13 +117,7 @@ public class ContactServlet extends HttpServlet {
 
         try {
             long contactId = Long.parseLong(path.substring(1));
-            Contact oldContact = this.contacts.get(contactId);
-            if (oldContact == null) {
-                resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
-                out.write("Il contatto specificato non esiste");
-                return;
-            }
-
+            
             BufferedReader reader = req.getReader();
             StringBuilder jsonString = new StringBuilder();
             String line;
@@ -160,11 +126,7 @@ public class ContactServlet extends HttpServlet {
             }
 
             Contact newContact = null;
-            if (!this.contacts.replace(contactId, oldContact, newContact)) {
-                resp.setStatus(HttpServletResponse.SC_CONFLICT);
-                out.write("La modifica non è andata a buon fine");
-                return;
-            }
+            
             resp.setStatus(HttpServletResponse.SC_OK);
             resp.setHeader("Location", req.getRequestURL().toString() + contactId);
         } catch (NumberFormatException ex) {
@@ -193,12 +155,7 @@ public class ContactServlet extends HttpServlet {
 
         try {
             long contactId = Long.parseLong(path.substring(1));
-            Contact oldContact = this.contacts.get(contactId);
-            if (!this.contacts.remove(contactId, oldContact)) {
-                resp.setStatus(HttpServletResponse.SC_CONFLICT);
-                out.write("L'eliminazione non è andata a buon fine, probabilmente l'id è sbagliato");
-                return;
-            }
+            
             resp.setStatus(HttpServletResponse.SC_OK);
         } catch (NumberFormatException ex) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
