@@ -2,11 +2,15 @@ package utils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.ArrayList;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import models.Contact;
+import models.Email;
+import models.PhoneNumber;
 import models.User;
 
 /**
@@ -66,20 +70,60 @@ public class JSONparser {
      */
     public User getLoginCredentials() {
         try {
-            User user = (User) this.object.get("user");
-            return user;
-            /*return new User(
-                this.object.getString("email"),
-                this.object.getString("password")
-            );*/
+            JSONObject user = this.object.getJSONObject("user");
+            return new User(
+                user.getString("email"),
+                user.getString("password")
+            );
         } catch (JSONException ex) {
             return null;
         }
     }
 
+    /**
+     * Estrae le credenziali necessarie alla creazione di un nuovo utente e
+     * del relativo contatto.
+     * 
+     * @return nuovo contatto se è stato trovato, altrimenti null
+     */
     public Contact getRegistrationCredentials() {
         try {
-            return null;//new Contact(null, firstName, familyName, secondName, owner, associatedUser, emails, phoneNumbers)
+            JSONObject JSONuser = this.object.getJSONObject("user");
+            JSONObject contact = this.object.getJSONObject("contact");
+            JSONArray JSONphoneNumbers = contact.getJSONArray("phoneNumbers");
+            JSONArray JSONemails = contact.optJSONArray("emails");
+            if (JSONemails == null) {
+                JSONemails = new JSONArray();
+            }
+
+            ArrayList<Email> emails = new ArrayList<>(JSONemails.length());
+            JSONemails.forEach((object) -> {
+                if(object instanceof JSONObject) {
+                    JSONObject email = (JSONObject) object;
+                    emails.add(new Email(
+                        email.getString("email"),
+                        email.optString("description")
+                    ));
+                }
+            });
+
+            ArrayList<PhoneNumber> phoneNumbers = new ArrayList<>(JSONphoneNumbers.length());
+            JSONphoneNumbers.forEach((object) -> {
+                if(object instanceof JSONObject) {
+                    JSONObject phoneNumber = (JSONObject) object;
+                    phoneNumbers.add(new PhoneNumber(
+                        0, phoneNumber.getString("countryCode"),
+                        phoneNumber.getString("areaCode"), phoneNumber.getString("prefix"),
+                        phoneNumber.getString("phoneLine"), phoneNumber.optString("description")
+                    ));
+                }
+            });
+
+            User user = new User(JSONuser.getString("email"), JSONuser.getString("password"));
+
+            return new Contact(0, contact.getString("firstName"), 
+                contact.getString("familyName"), contact.optString("secondName"),
+                user, user, emails, phoneNumbers);
         } catch (JSONException ex) {
             return null;
         }

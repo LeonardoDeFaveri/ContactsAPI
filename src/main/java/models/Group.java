@@ -1,6 +1,6 @@
 package models;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 
 /**
  * La classe rappresenta un gruppo di contatti.
@@ -9,9 +9,9 @@ public class Group {
     private int id;
     private User owner;
     private String name;
-    private Contact[] contacts;
+    private ArrayList<Contact> contacts;
 
-    public Group(int id, User owner, String name, Contact[] contacts) {
+    public Group(int id, User owner, String name, ArrayList<Contact> contacts) {
         this.id = id;
         this.owner = owner;
         this.name = name;
@@ -50,7 +50,7 @@ public class Group {
      * 
      * @return contatti del gruppo
      */
-    public Contact[] getContacts() {
+    public ArrayList<Contact> getContacts() {
         return contacts;
     }
 
@@ -63,6 +63,6 @@ public class Group {
      */
     public boolean equals(Group g1) {
         return g1.id == this.id && g1.name.equals(this.name) &&
-            g1.owner.equals(this.owner) && Arrays.equals(g1.contacts, this.contacts);
+            g1.owner.equals(this.owner) && g1.contacts.equals(this.contacts);
     }
 }

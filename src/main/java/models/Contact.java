@@ -1,6 +1,6 @@
 package models;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 
 /**
  * La classe rappresenta un contatto della rubrica.
@@ -12,11 +12,11 @@ public class Contact {
     private String secondName;
     private User owner;
     private User associatedUser;
-    private Email[] emails;
-    private PhoneNumber[] phoneNumbers;
+    private ArrayList<Email> emails;
+    private ArrayList<PhoneNumber> phoneNumbers;
 
     public Contact(int id, String firstName, String familyName, String secondName, User owner, User associatedUser,
-            Email[] emails, PhoneNumber[] phoneNumbers) {
+        ArrayList<Email> emails, ArrayList<PhoneNumber> phoneNumbers) {
         this.id = id;
         this.firstName = firstName;
         this.familyName = familyName;
@@ -87,7 +87,7 @@ public class Contact {
      * 
      * @return indirizzi email
      */
-    public Email[] getEmails() {
+    public ArrayList<Email> getEmails() {
         return this.emails;
     }
 
@@ -96,7 +96,7 @@ public class Contact {
      * 
      * @return numeri di telefono
      */
-    public PhoneNumber[] getPhoneNumbers() {
+    public ArrayList<PhoneNumber> getPhoneNumbers() {
         return this.phoneNumbers;
     }
 
@@ -111,6 +111,6 @@ public class Contact {
         return c1.id == this.id && c1.firstName.equals(this.firstName) && 
             c1.familyName.equals(this.familyName) && c1.secondName.equals(this.secondName) &&
             c1.owner.equals(this.owner) && c1.associatedUser.equals(this.associatedUser) &&
-            Arrays.equals(c1.emails, this.emails) && Arrays.equals(c1.phoneNumbers, this.phoneNumbers);
+            c1.emails.equals(this.emails) && c1.phoneNumbers.equals(this.phoneNumbers);
     }
 }

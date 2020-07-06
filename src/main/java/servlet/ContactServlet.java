@@ -86,7 +86,12 @@ public class ContactServlet extends HttpServlet {
                 break;
             
             case Actions.REGISTER:
-                
+                Contact contact = jsonParser.getRegistrationCredentials();
+                if (contact != null) {
+                    resp.setStatus(HttpServletResponse.SC_OK);
+                } else {
+                    resp.setStatus((HttpServletResponse.SC_BAD_REQUEST));
+                }
                 break;
 
             case Actions.CREATE:
