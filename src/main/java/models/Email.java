@@ -1,9 +1,14 @@
 package models;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import utils.keys.EmailKeys;
+
 /**
- * La classe rappresenta una delle tante email che possono
- * essere assegnate ad un contatto. Oltre all'indirizzo può
- * anche essere specificata una descrizione.
+ * La classe rappresenta uno dei tanti indirizzi email che possono 
+ * essere assegnati ad un contatto. Oltre all'indirizzo può anche 
+ * essere specificata una descrizione.
  */
 public class Email {
     private String email;
@@ -12,6 +17,19 @@ public class Email {
     public Email(String email, String description) {
         this.email = email;
         this.description = description;
+    }
+
+    /**
+     * Crea un'istanza a partire da un'oggetto JSON.
+     * 
+     * @param JSONEmail rappresentazione JSON dell'indirizzo email.
+     * 
+     * @throws JSONException errore durante la lettura di alcuni campi, che
+     *      probabilmente non sono stati forniti
+     */
+    public Email(JSONObject JSONEmail) throws JSONException {
+        this.email = JSONEmail.getString(EmailKeys.EMAIL);
+        this.description = JSONEmail.optString(EmailKeys.DESCRIPTION);
     }
 
     /**
@@ -41,5 +59,18 @@ public class Email {
      */
     public boolean equals(Email e1) {
         return e1.email.equals(this.email) && e1.description.equals(this.description);
+    }
+
+    /**
+     * Restituisce una rappresentazione, sotto forma di oggetto JSON,
+     * dell'istanza.
+     * 
+     * @return rappresentazione JSON dell'istanza 
+     */
+    public JSONObject toJSON() {
+        JSONObject email = new JSONObject();
+        email.put(EmailKeys.EMAIL, this.email);
+        email.put(EmailKeys.DESCRIPTION, this.description);
+        return email;
     }
 }

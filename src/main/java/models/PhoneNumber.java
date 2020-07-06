@@ -2,6 +2,11 @@ package models;
 
 import java.util.regex.*;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import utils.keys.PhoneNumberKeys;
+
 /**
  * La classe rappresenta un numero di telefono suddiviso nelle sue singole
  * parti. Inoltre è possibile fornire una descrizione per il numero.
@@ -58,6 +63,23 @@ public class PhoneNumber {
         matcher = phoneLineFinder.matcher(phoneNumber);
         matcher.find();
         this.phoneLine = matcher.group();
+    }
+
+    /**
+     * Crea un'istanza a partire da un'oggetto JSON.
+     * 
+     * @param JSONPhoneNumber rappresentazione JSON del numero di telefono
+     * 
+     * @throws JSONException errore durante la lettura di alcuni campi, che
+     *      probabilmente non sono stati forniti
+     */
+    public PhoneNumber(JSONObject JSONPhoneNumber) throws JSONException {
+        this.id = JSONPhoneNumber.optInt(PhoneNumberKeys.ID, -1);
+        this.countryCode = JSONPhoneNumber.getString(PhoneNumberKeys.COUNTRY_CODE);
+        this.areaCode = JSONPhoneNumber.getString(PhoneNumberKeys.AREA_CODE);
+        this.prefix = JSONPhoneNumber.getString(PhoneNumberKeys.PREFIX);
+        this.phoneLine = JSONPhoneNumber.getString(PhoneNumberKeys.PHONE_LINE);
+        this.description = JSONPhoneNumber.optString(PhoneNumberKeys.DESCRIPTION);
     }
 
     /**
@@ -136,5 +158,22 @@ public class PhoneNumber {
     @Override
     public String toString() {
         return String.format("+%s %s%s%s", this.countryCode, this.areaCode, this.prefix, this.phoneLine);
+    }
+
+    /**
+     * Restituisce una rappresentazione, sotto forma di oggetto JSON,
+     * dell'istanza.
+     * 
+     * @return rappresentazione JSON dell'istanza 
+     */
+    public JSONObject toJSON() {
+        JSONObject phoneNumber = new JSONObject();
+        phoneNumber.put(PhoneNumberKeys.ID, this.id);
+        phoneNumber.put(PhoneNumberKeys.COUNTRY_CODE, this.countryCode);
+        phoneNumber.put(PhoneNumberKeys.AREA_CODE, this.areaCode);
+        phoneNumber.put(PhoneNumberKeys.PREFIX, this.prefix);
+        phoneNumber.put(PhoneNumberKeys.PHONE_LINE, this.phoneLine);
+        phoneNumber.put(PhoneNumberKeys.DESCRIPTION, this.description);
+        return phoneNumber;
     }
 }

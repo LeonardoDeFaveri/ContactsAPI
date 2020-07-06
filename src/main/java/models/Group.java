@@ -2,6 +2,12 @@ package models;
 
 import java.util.ArrayList;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import utils.keys.GroupKeys;
+
 /**
  * La classe rappresenta un gruppo di contatti.
  */
@@ -16,6 +22,33 @@ public class Group {
         this.owner = owner;
         this.name = name;
         this.contacts = contacts;
+    }
+
+    /**
+     * Crea un'istanza a partire da un'oggetto JSON.
+     * 
+     * @param JSONGroup rappresentazione JSON del gruppo
+     * 
+     * @throws JSONException errore durante la lettura di alcuni campi, che
+     *      probabilmente non sono stati forniti
+     */
+    public Group(JSONObject JSONGroup) throws JSONException {
+        this.id = JSONGroup.optInt(GroupKeys.ID, -1);
+        this.owner = new User(JSONGroup.getJSONObject(GroupKeys.OWNER));
+        this.name = JSONGroup.getString(GroupKeys.NAME);
+        
+        JSONArray JSONContacts = JSONGroup.optJSONArray(GroupKeys.CONTACTS);
+        if (JSONContacts == null) {
+            this.contacts = new ArrayList<>();
+        } else {
+            this.contacts = new ArrayList<>(JSONContacts.length());
+            JSONContacts.forEach((object) -> {
+                if (object instanceof JSONObject) {
+                    JSONObject JSONContact = (JSONObject) object;
+                    this.contacts.add(new Contact(JSONContact));
+                }
+            });
+        }
     }
 
     /**
@@ -64,5 +97,29 @@ public class Group {
     public boolean equals(Group g1) {
         return g1.id == this.id && g1.name.equals(this.name) &&
             g1.owner.equals(this.owner) && g1.contacts.equals(this.contacts);
+    }
+
+    /**
+     * Restituisce una rappresentazione, sotto forma di oggetto JSON,
+     * dell'istanza.
+     * 
+     * @return rappresentazione JSON dell'istanza 
+     */
+    public JSONObject toJSON() {
+        JSONObject group = new JSONObject();
+        
+        JSONArray contacts = new JSONArray(this.contacts.size());
+        this.contacts.forEach((object) -> {
+            if (object instanceof Contact) {
+                Contact contact = (Contact) object;
+                contacts.put(contact.toJSON());
+            }
+        });
+
+        group.put(GroupKeys.ID, this.id);
+        group.put(GroupKeys.OWNER, this.owner);
+        group.put(GroupKeys.NAME, this.name);
+        group.put(GroupKeys.CONTACTS, contacts);
+        return group;
     }
 }

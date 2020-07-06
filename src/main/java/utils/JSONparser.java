@@ -12,6 +12,7 @@ import models.Contact;
 import models.Email;
 import models.PhoneNumber;
 import models.User;
+import utils.keys.UserKeys;
 
 /**
  * La classe rappresenta uno strumento utile per effettuare il parsing
@@ -70,11 +71,7 @@ public class JSONparser {
      */
     public User getLoginCredentials() {
         try {
-            JSONObject user = this.object.getJSONObject("user");
-            return new User(
-                user.getString("email"),
-                user.getString("password")
-            );
+            return new User(this.object.getJSONObject("user"));
         } catch (JSONException ex) {
             return null;
         }
@@ -88,42 +85,7 @@ public class JSONparser {
      */
     public Contact getRegistrationCredentials() {
         try {
-            JSONObject JSONuser = this.object.getJSONObject("user");
-            JSONObject contact = this.object.getJSONObject("contact");
-            JSONArray JSONphoneNumbers = contact.getJSONArray("phoneNumbers");
-            JSONArray JSONemails = contact.optJSONArray("emails");
-            if (JSONemails == null) {
-                JSONemails = new JSONArray();
-            }
-
-            ArrayList<Email> emails = new ArrayList<>(JSONemails.length());
-            JSONemails.forEach((object) -> {
-                if(object instanceof JSONObject) {
-                    JSONObject email = (JSONObject) object;
-                    emails.add(new Email(
-                        email.getString("email"),
-                        email.optString("description")
-                    ));
-                }
-            });
-
-            ArrayList<PhoneNumber> phoneNumbers = new ArrayList<>(JSONphoneNumbers.length());
-            JSONphoneNumbers.forEach((object) -> {
-                if(object instanceof JSONObject) {
-                    JSONObject phoneNumber = (JSONObject) object;
-                    phoneNumbers.add(new PhoneNumber(
-                        0, phoneNumber.getString("countryCode"),
-                        phoneNumber.getString("areaCode"), phoneNumber.getString("prefix"),
-                        phoneNumber.getString("phoneLine"), phoneNumber.optString("description")
-                    ));
-                }
-            });
-
-            User user = new User(JSONuser.getString("email"), JSONuser.getString("password"));
-
-            return new Contact(0, contact.getString("firstName"), 
-                contact.getString("familyName"), contact.optString("secondName"),
-                user, user, emails, phoneNumbers);
+            return new Contact(this.object.getJSONObject("contact"));
         } catch (JSONException ex) {
             return null;
         }
