@@ -151,7 +151,23 @@ public class ContactServlet extends HttpServlet {
                             if (notInsertedPhoneNumbers.size() == 0 && notInsertedEmails.size() == 0) {
                                 resp.setStatus(HttpServletResponse.SC_CREATED);
                             } else {
+                                error = new JSONObject();
+                                error.put(ErrorKeys.ACTION, Actions.REGISTER);
+                                error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
+                                error.put(ErrorKeys.CODE, ErrorCodes.INSERTION_FAILURE);
 
+                                JSONObject notInserted = new JSONObject();
+                                if (notInsertedPhoneNumbers.size() > 0) {
+                                    notInserted.put("phoneNumbers", new JSONArray(notInsertedPhoneNumbers));
+                                }
+                                if (notInsertedEmails.size() > 0) {
+                                    notInserted.put("emails", new JSONArray(notInsertedEmails));
+                                }
+                                error.put(ErrorKeys.DATA, notInserted);
+                                error.put(ErrorKeys.TITLE, "Insertion failure");
+                                error.put(ErrorKeys.MESSAGE, "Some phone numbers or emailhave not been inserted");
+                                error.put(ErrorKeys.SUGGESTION, "Try checking the values and retry");
+                                out.write(error.toString());
                             }
                             break;
                     }

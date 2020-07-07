@@ -9,4 +9,5 @@ public interface ErrorCodes {
     public final int DUPLICATED_USER = 2;
     public final int INVALID_CONTENT_TYPE = 3;
     public final int WRONG_SYNTAX = 4;
+    public final int INSERTION_FAILURE = 5;
 }

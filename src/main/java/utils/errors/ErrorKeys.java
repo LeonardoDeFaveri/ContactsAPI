@@ -12,4 +12,5 @@ public interface ErrorKeys {
     public final String TITLE = "title";
     public final String MESSAGE = "message";
     public final String SUGGESTION = "suggestion";
+    public final String DATA = "data";
 }
