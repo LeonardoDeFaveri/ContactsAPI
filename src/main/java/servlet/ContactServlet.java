@@ -151,6 +151,7 @@ public class ContactServlet extends HttpServlet {
                             if (notInsertedPhoneNumbers.size() == 0 && notInsertedEmails.size() == 0) {
                                 resp.setStatus(HttpServletResponse.SC_CREATED);
                             } else {
+                                resp.setStatus(HttpServletResponse.SC_CONFLICT);
                                 error = new JSONObject();
                                 error.put(ErrorKeys.ACTION, Actions.REGISTER);
                                 error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
