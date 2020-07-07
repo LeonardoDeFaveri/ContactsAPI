@@ -6,6 +6,9 @@ package utils;
  * documento JSON.
  */
 public interface Actions {
+    public final String INITIALIZE = "initialize";
+    public final String RECEIVE = "receive";
+    public final String READ = "read";
     public final String LOGIN = "login";
     public final String REGISTER = "register";
     public final String CREATE = "create";

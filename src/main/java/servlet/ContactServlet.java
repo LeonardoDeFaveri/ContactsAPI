@@ -1,7 +1,7 @@
 package servlet;
 
-import models.Contact;
-import models.User;
+import models.*;
+import utils.errors.*;
 import utils.Actions;
 import utils.JSONparser;
 
@@ -9,6 +9,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Map;
 
 import org.json.*;
@@ -54,12 +55,21 @@ public class ContactServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        JSONObject error;
         PrintWriter out = resp.getWriter();
         resp.setCharacterEncoding("UTF-8");
         String contentType = req.getContentType();
         if (contentType == null || !contentType.equals("application/json")) {
-            resp.setStatus(HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE);
-            out.write("Invalid content type; it must be application/json");
+            error = new JSONObject();
+            error.put(ErrorKeys.ACTION, Actions.RECEIVE);
+            error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
+            error.put(ErrorKeys.TITLE, "Error while receiving the message");
+            error.put(ErrorKeys.CODE, ErrorCodes.INVALID_CONTENT_TYPE);
+            error.put(ErrorKeys.MESSAGE, 
+                "An error has occured while receiving the message. The contentType is incorrect");
+            error.put(ErrorKeys.SUGGESTION, 
+                "Try changing the content type to 'application/json' or try sending a JSON file");
+            out.write(error.toString());
             return;
         }
 
@@ -68,7 +78,15 @@ public class ContactServlet extends HttpServlet {
             jsonParser = new JSONparser(req.getReader());
         } catch (IOException ex) {
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            out.write("Error while reading the request body");
+            error = new JSONObject();
+            error.put(ErrorKeys.ACTION, Actions.READ);
+            error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
+            error.put(ErrorKeys.TITLE, "Error while reading the message");
+            error.put(ErrorKeys.CODE, ErrorCodes.WRONG_SYNTAX);
+            error.put(ErrorKeys.MESSAGE, 
+                "An error has occured while trying to read the message.");
+            error.put(ErrorKeys.SUGGESTION, "Try checking the syntax");
+            out.write(error.toString());
             return;
         }
 
@@ -84,10 +102,59 @@ public class ContactServlet extends HttpServlet {
             
             case Actions.REGISTER:
                 Contact contact = jsonParser.getRegistrationCredentials();
-                if (contact != null) {
-                    resp.setStatus(HttpServletResponse.SC_OK);
-                } else {
+                if (contact == null) {
                     resp.setStatus((HttpServletResponse.SC_BAD_REQUEST));
+                    error = new JSONObject();
+                    error.put(ErrorKeys.ACTION, Actions.READ);
+                    error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
+                    error.put(ErrorKeys.TITLE, "Error while interpreting the message");
+                    error.put(ErrorKeys.CODE, ErrorCodes.WRONG_SYNTAX);
+                    error.put(ErrorKeys.MESSAGE, 
+                        "An error has occured while trying to pull out needed information from the text");
+                    error.put(ErrorKeys.SUGGESTION, "Try checking the syntax");
+                    out.write(error.toString());
+                } else {
+                    int id = this.dbManager.registerUser(contact);
+                    switch (id) {
+                        // Errore durante la registrazione
+                        case -1:
+                            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                            error = new JSONObject();
+                            error.put(ErrorKeys.ACTION, Actions.REGISTER);
+                            error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
+                            error.put(ErrorKeys.TITLE, "Error during registration");
+                            error.put(ErrorKeys.CODE, ErrorCodes.REGISTRATION_FAILURE);
+                            error.put(ErrorKeys.MESSAGE, "An error during registration has occured");
+                            error.put(ErrorKeys.SUGGESTION, "Retry later");
+                            out.write(error.toString());
+                            break;
+                    
+                        // L'utente esiste già
+                        case 0:
+                            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                            error = new JSONObject();
+                            error.put(ErrorKeys.ACTION, Actions.REGISTER);
+                            error.put(ErrorKeys.TYPE, ErrorTypes.WARNING);
+                            error.put(ErrorKeys.TITLE, "Error during registration");
+                            error.put(ErrorKeys.CODE, ErrorCodes.DUPLICATED_USER);
+                            error.put(ErrorKeys.MESSAGE, "A user with the same email has been detected");
+                            error.put(ErrorKeys.SUGGESTION, "Try logging in with the same credentials used to register");
+                            out.write(error.toString());
+                            break;
+
+                        // Registrazione riuscita
+                        default:
+                            ArrayList<PhoneNumber> notInsertedPhoneNumbers = 
+                                this.dbManager.insertPhoneNumbers(contact.getPhoneNumbers(), id);
+                            ArrayList<Email> notInsertedEmails = 
+                                this.dbManager.insertEmails(contact.getEmails(), id);
+                            if (notInsertedPhoneNumbers.size() == 0 && notInsertedEmails.size() == 0) {
+                                resp.setStatus(HttpServletResponse.SC_CREATED);
+                            } else {
+
+                            }
+                            break;
+                    }
                 }
                 break;
 

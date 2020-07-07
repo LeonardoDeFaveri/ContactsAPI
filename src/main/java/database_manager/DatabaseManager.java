@@ -5,7 +5,12 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
+import java.util.ArrayList;
 
+import models.Contact;
+import models.Email;
+import models.PhoneNumber;
 import models.User;
 
 /**
@@ -35,12 +40,13 @@ public class DatabaseManager {
     public boolean testCredentials(User user) {
         try {
             PreparedStatement query = this.connection
-                    .prepareStatement("SELECT * FROM users WHERE email = ? AND password = ?");
+                    .prepareStatement("SELECT test_credentials(?, ?)");
             query.setString(1, user.getEmail());
             query.setString(2, user.getPassword());
             ResultSet result = query.executeQuery();
-            if (result.last()) {
-                return result.getRow() == 1; 
+                result.first();
+            if (result.getBoolean(1)) {
+                return true; 
             } else {
                 return false;
             }
@@ -48,6 +54,107 @@ public class DatabaseManager {
             System.err.println(ex.getMessage());
             return false;
         }
+    }
+
+    /**
+     * Registra un nuovo utente sul servizio. Crea sia l'utente che il
+     * contatto associato.
+     * 
+     * @param contact contatto da registrare
+     * 
+     * @return true se l'utente e il contatto sono stati inseriti con
+     *      successo, altrimenti false. Restituisce false se si sono
+     *      verificati errori o se l'utente esiste già
+     */
+    public int registerUser(Contact contact) {
+        try {
+            PreparedStatement query = this.connection
+                    .prepareStatement("SELECT insert_user(?, ?, ?, ?, ?)");
+            query.setString(1, contact.getOwner().getEmail());
+            query.setString(2, contact.getOwner().getPassword());
+            query.setString(3, contact.getFirstName());
+            query.setString(4, contact.getFamilyName());
+            if (contact.getSecondName().equals("")) {
+                query.setNull(5, Types.VARCHAR);
+            } else {
+                query.setString(5, contact.getSecondName());
+            }
+            ResultSet result = query.executeQuery();
+            result.first();
+            return result.getInt(1);
+        } catch (SQLException ex) {
+            System.err.println(ex.getMessage());
+            return -1;
+        }
+    }
+
+    /**
+     * Inserisce dei nuovi numeri di telefono e li associa ad un contatto.
+     * 
+     * @param phoneNumbers numeri da inserire
+     * @param contactId id del contatto al quale associare i numeri
+     *
+     * @return lista di tutti i numeri di telefono che non sono stati inseriti,
+     *      se non ci sono stati problemi la lista è vuota
+     */
+    public ArrayList<PhoneNumber> insertPhoneNumbers(ArrayList<PhoneNumber> phoneNumbers, int contactId) {
+        ArrayList<PhoneNumber> notInserted = new ArrayList<>();
+        phoneNumbers.forEach((phoneNumber) -> {
+            try {
+                PreparedStatement query = this.connection
+                        .prepareStatement("SELECT insert_phone_number(?, ?, ?, ?, ?, ?)");
+                query.setString(1, phoneNumber.getCountryCode());
+                query.setString(2, phoneNumber.getAreaCode());
+                query.setString(3, phoneNumber.getPrefix());
+                query.setString(4, phoneNumber.getPhoneLine());
+                if (phoneNumber.getDescription().equals("")) {
+                    query.setNull(5, Types.VARCHAR);
+                } else {
+                    query.setString(5, phoneNumber.getDescription());
+                }
+                query.setInt(6, contactId);
+                ResultSet result = query.executeQuery();
+                result.first();
+                if (result.getInt(1) == -1) {
+                    notInserted.add(phoneNumber);
+                }
+            } catch (SQLException ex) {
+                System.err.println(ex.getMessage());
+                notInserted.add(phoneNumber);
+            }
+        });
+        return notInserted;
+    }
+
+    /**
+     * Inserisce dei nuovi indirizzi email e li associa ad un contatto.
+     * 
+     * @param emails indirizzi da inserire
+     * @param contactId id del contatto al quale associare gli indirizzi
+     *
+     * @return lista di tutti gli indirizzi email che non sono stati inseriti,
+     *      se non ci sono stati problemi la lista è vuota
+     */
+    public ArrayList<Email> insertEmails(ArrayList<Email> emails, int contactId) {
+        ArrayList<Email> notInserted = new ArrayList<>();
+        emails.forEach((email) -> {
+            try {
+                PreparedStatement query = this.connection
+                        .prepareStatement("SELECT insert_email(?, ?, ?)");
+                query.setString(1, email.getEmail());
+                if (email.getDescription().equals("")) {
+                    query.setNull(2, Types.VARCHAR);
+                } else {
+                    query.setString(2, email.getDescription());
+                }
+                query.setInt(3, contactId);
+                query.executeQuery();
+            } catch (SQLException ex) {
+                System.err.println(ex.getMessage());
+                notInserted.add(email);
+            }
+        });
+        return notInserted;
     }
 
     /**
