@@ -6,7 +6,6 @@ package utils.errors;
  * che rappresenta un messaggio di errore.
  */
 public interface ErrorKeys {
-    public final String ACTION = "action";
     public final String TYPE = "type";
     public final String CODE = "code";
     public final String TITLE = "title";

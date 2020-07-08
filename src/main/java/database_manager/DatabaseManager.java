@@ -8,10 +8,7 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
 
-import models.Contact;
-import models.Email;
-import models.PhoneNumber;
-import models.User;
+import models.*;
 
 /**
  * La classe consente di interagire col database usato per la
@@ -62,9 +59,9 @@ public class DatabaseManager {
      * 
      * @param contact contatto da registrare
      * 
-     * @return true se l'utente e il contatto sono stati inseriti con
-     *      successo, altrimenti false. Restituisce false se si sono
-     *      verificati errori o se l'utente esiste già
+     * @return id del contatto se è stato creato con successo,
+     *     0 se l'utente esiste già e -1 se si è verificato un
+     *     errore durante l'inserimento del contatto
      */
     public int registerUser(Contact contact) {
         try {
@@ -79,6 +76,63 @@ public class DatabaseManager {
             } else {
                 query.setString(5, contact.getSecondName());
             }
+            ResultSet result = query.executeQuery();
+            result.first();
+            return result.getInt(1);
+        } catch (SQLException ex) {
+            System.err.println(ex.getMessage());
+            return -1;
+        }
+    }
+
+    /**
+     * Inserisce un nuovo contatto.
+     * 
+     * @param contact contatto da inserire
+     * 
+     * @return id del contatto se è stato creato con successo
+     *      o se esisteva già, altrimenti -1
+     */
+    public int insertContact(Contact contact) {
+        try {
+            PreparedStatement query = this.connection
+                .prepareStatement("SELECT insert_contact(?, ?, ?, ?, ?)");
+            query.setString(1, contact.getFirstName());
+            query.setString(2, contact.getFamilyName());
+            if (contact.getSecondName().equals("")) {
+                query.setNull(3, Types.VARCHAR);
+            } else {
+                query.setString(3, contact.getSecondName());
+            }
+            query.setString(4, contact.getOwner().getEmail());
+            if (contact.getAssociatedUser() == null) {
+                query.setNull(5, Types.VARCHAR);
+            } else {
+                query.setString(5, contact.getAssociatedUser().getEmail());
+            }
+            ResultSet result = query.executeQuery();
+            result.first();
+            return result.getInt(1);
+        } catch (SQLException ex) {
+            System.err.println(ex.getMessage());
+            return -1;
+        }
+    }
+
+    /**
+     * Inserisce un nuovo gruppo.
+     * 
+     * @param group gruppo da inserire
+     * 
+     * @return id del gruppo se è stato creato con successo
+     *      o se esisteva già, altrimenti -1
+     */
+    public int insertGroup(Group group) {
+        try {
+            PreparedStatement query = this.connection
+                .prepareStatement("SELECT insert_group(?, ?)");
+            query.setString(1, group.getName());
+            query.setString(2, group.getOwner().getEmail());
             ResultSet result = query.executeQuery();
             result.first();
             return result.getInt(1);

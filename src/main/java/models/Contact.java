@@ -47,7 +47,12 @@ public class Contact {
         this.familyName = JSONContact.getString(ContactKeys.FAMILY_NAME);
         this.secondName = JSONContact.optString(ContactKeys.SECOND_NAME);
         this.owner = new User(JSONContact.getJSONObject(ContactKeys.OWNER));
-        this.associatedUser = new User(JSONContact.optJSONObject(ContactKeys.ASSOCIATED_USER));
+        JSONObject user = JSONContact.optJSONObject(ContactKeys.ASSOCIATED_USER);
+        if (user == null) {
+            this.associatedUser = null;
+        } else {
+            this.associatedUser = new User(user);
+        }
         
         JSONArray JSONPhoneNumbers = JSONContact.optJSONArray(ContactKeys.PHONE_NUMBERS);
         if (JSONPhoneNumbers == null) {

@@ -2,11 +2,11 @@ package utils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import models.Contact;
-import models.User;
+import models.*;
 
 /**
  * La classe rappresenta uno strumento utile per effettuare il parsing
@@ -22,7 +22,7 @@ public class JSONparser {
      * @param reader buffered reader dal quale estrarre il test da convertire in JSON
      * @throws IOException errore durante la lettura del testo dal buffered reader
      */
-    public JSONparser(BufferedReader reader) throws IOException {
+    public JSONparser(BufferedReader reader) throws IOException, JSONException {
         StringBuilder stringBuilder = new StringBuilder();
         String line;
         while ((line = reader.readLine()) != null) {
@@ -42,20 +42,6 @@ public class JSONparser {
     }
 
     /**
-     * Estrae il valore del campo action.
-     * 
-     * @return il valore in formato stringa se è stato
-     * trovato, altrimenti null
-     */
-    public String getAction() {
-        try{
-            return this.object.getString("action");
-        } catch (JSONException ex) {
-            return null;
-        }
-    }
-
-    /**
      * Estrae le credenziali da usare per autenticare un utente.
      * Per la password si suppone ne venga inviato l'hash calcolato
      * con una funzione di hash a 256 bit.
@@ -69,6 +55,15 @@ public class JSONparser {
         } catch (JSONException ex) {
             return null;
         }
+    }
+
+    /**
+     * Controlla se la richiesta è solo per un login.
+     * 
+     * @return true se è una richiesta di solo login, altrimenti false
+     */
+    public boolean isJustLoing() {
+        return this.object.optBoolean("justLogin");
     }
 
     /**
@@ -86,18 +81,28 @@ public class JSONparser {
     }
 
     /**
-     * Controlla che la strigna possa essere un valore valido
-     * per il campo "action" del documento json. Non viene fatta
-     * distinzione tra le maiuscole e li minuscole, però sarebbe
-     * preferibile, per convenzione, usare stringhe minuscole.
+     * Restituisce il contatto specificato.
      * 
-     * @param action stringa da controllare
-     * 
-     * @return true se la stringa è corretta, altrimenti false
+     * @return contatto se è stato trovato, altrimenti null
      */
-    public static boolean checkActionValidity(String action) {
-        return action.equalsIgnoreCase(Actions.LOGIN) ||
-            action.equalsIgnoreCase(Actions.REGISTER) ||
-            action.equalsIgnoreCase(Actions.CREATE);
+    public Contact getContact() {
+        try {
+            return new Contact(this.object.getJSONObject("contact"));
+        } catch (JSONException ex) {
+            return null;
+        }
+    }
+
+    /**
+     * Restituisce il gruppo specificato.
+     * 
+     * @return gruppo se è stato trovato, altrimenti null
+     */
+    public Group getGroup() {
+        try {
+            return new Group(this.object.getJSONObject("group"));
+        } catch (JSONException ex) {
+            return null;
+        }
     }
 }
