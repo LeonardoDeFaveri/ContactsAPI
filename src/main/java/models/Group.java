@@ -117,7 +117,7 @@ public class Group {
         });
 
         group.put(GroupKeys.ID, this.id);
-        group.put(GroupKeys.OWNER, this.owner);
+        group.put(GroupKeys.OWNER, this.owner.toJSON());
         group.put(GroupKeys.NAME, this.name);
         group.put(GroupKeys.CONTACTS, contacts);
         return group;
