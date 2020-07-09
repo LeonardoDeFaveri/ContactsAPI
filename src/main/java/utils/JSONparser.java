@@ -62,7 +62,7 @@ public class JSONparser {
      * 
      * @return true se è una richiesta di solo login, altrimenti false
      */
-    public boolean isJustLoing() {
+    public boolean isJustLogin() {
         return this.object.optBoolean("justLogin");
     }
 

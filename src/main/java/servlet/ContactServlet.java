@@ -122,7 +122,7 @@ public class ContactServlet extends HttpServlet {
       }
   
       // Può essere che l'utente voglia soltanto testare le sue credenziali
-      if (jsonParser.isJustLoing()) {
+      if (jsonParser.isJustLogin()) {
         resp.setStatus(HttpServletResponse.SC_OK);
         return;
       }
