@@ -6,8 +6,10 @@ import utils.errors.*;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Base64;
 
 import org.json.*;
 
@@ -38,8 +40,61 @@ public class ContactServlet extends HttpServlet {
 
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    JSONObject error;
     PrintWriter out = resp.getWriter();
     resp.setCharacterEncoding("UTF-8");
+
+    String contentType = req.getContentType();
+    if (contentType == null || !contentType.equals("application/json")) {
+      resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+      error = new JSONObject();
+      error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
+      error.put(ErrorKeys.TITLE, "Error while receiving the message");
+      error.put(ErrorKeys.CODE, ErrorCodes.INVALID_CONTENT_TYPE);
+      error.put(ErrorKeys.MESSAGE, "An error has occured while receiving the message. The contentType is incorrect");
+      error.put(ErrorKeys.SUGGESTION, "Try changing the content type to 'application/json' or try sending a JSON file");
+      out.write(error.toString());
+      return;
+    }
+
+    PathParser pathParser = new PathParser(req.getPathInfo(), req.getParameterMap());
+    ArrayList<String> pathTokens = pathParser.getPathTokens();
+    if (pathTokens.size() == 0) {
+      pathTokens.add(FirstLevelValues.NOT_PROVIDED);
+    }
+
+    User user = this.getCredentials(req);
+    if (user == null && !pathTokens.get(0).equals(FirstLevelValues.USERS)) {
+      resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+      error = new JSONObject();
+      error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
+      error.put(ErrorKeys.TITLE, "Missing Authenticatio");
+      error.put(ErrorKeys.CODE, ErrorCodes.MISSING_AUTHENTICATION);
+      error.put(ErrorKeys.MESSAGE, "Authentication parameters have not been provided");
+      error.put(ErrorKeys.SUGGESTION, 
+        "Provide authentication parameters or check the 'Authentication' header: it must be of type 'basic'");
+      out.write(error.toString());
+      return;
+    }
+    if (!this.dbManager.testCredentials(user)) {
+      error = new JSONObject();
+      error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
+      error.put(ErrorKeys.TITLE, "Failed Authenticatio");
+      error.put(ErrorKeys.CODE, ErrorCodes.FAILED_AUTHENTICATION);
+      error.put(ErrorKeys.MESSAGE, "The authentication process has failed");
+      error.put(ErrorKeys.SUGGESTION, "Try checking the authentication parameters provided");
+      out.write(error.toString());
+      return;
+    }
+
+    switch (pathTokens.get(0)) {
+      case FirstLevelValues.CONTACTS:
+        
+        break;
+    
+      default:
+        break;
+    }
 
     out.flush();
     out.close();
@@ -53,6 +108,7 @@ public class ContactServlet extends HttpServlet {
     
     String contentType = req.getContentType();
     if (contentType == null || !contentType.equals("application/json")) {
+      resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
       error = new JSONObject();
       error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
       error.put(ErrorKeys.TITLE, "Error while receiving the message");
@@ -96,7 +152,7 @@ public class ContactServlet extends HttpServlet {
 
     // Dato che le interazioni con i web service sono senza stato, è necessario
     // che l'utente venga autenticato ad ogni richiesta
-    User user = jsonParser.getLoginCredentials();
+    User user = this.getCredentials(req);
     if (user == null && !pathTokens.get(0).equals(FirstLevelValues.USERS)) {
       resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
       error = new JSONObject();
@@ -104,10 +160,12 @@ public class ContactServlet extends HttpServlet {
       error.put(ErrorKeys.TITLE, "Missing Authenticatio");
       error.put(ErrorKeys.CODE, ErrorCodes.MISSING_AUTHENTICATION);
       error.put(ErrorKeys.MESSAGE, "Authentication parameters have not been provided");
-      error.put(ErrorKeys.SUGGESTION, "Provide authentication parameters");
+      error.put(ErrorKeys.SUGGESTION, 
+        "Provide authentication parameters or check the 'Authentication' header: it must be of type 'basic'");
       out.write(error.toString());
       return;
     }
+    
     // Se l'utente non sta tentando di registrarsi, controlla le credenziali
     if (!pathTokens.get(0).equals(FirstLevelValues.USERS)) {
       if (!this.dbManager.testCredentials(user)) {
@@ -120,7 +178,7 @@ public class ContactServlet extends HttpServlet {
         out.write(error.toString());
         return;
       }
-  
+    } else {
       // Può essere che l'utente voglia soltanto testare le sue credenziali
       if (jsonParser.isJustLogin()) {
         resp.setStatus(HttpServletResponse.SC_OK);
@@ -335,7 +393,7 @@ public class ContactServlet extends HttpServlet {
                 error.put(ErrorKeys.TITLE, "Error during insertion");
                 error.put(ErrorKeys.CODE, ErrorCodes.INSERTION_FAILURE);
                 error.put(ErrorKeys.MESSAGE, "An error during call insertion has occured");
-                error.put(ErrorKeys.SUGGESTION, "Retry later");
+                error.put(ErrorKeys.SUGGESTION, "Retry later or check the syntax");
                 out.write(error.toString());
             } else {
               resp.setStatus(HttpServletResponse.SC_CREATED);
@@ -411,6 +469,26 @@ public class ContactServlet extends HttpServlet {
       System.err.println("ERROR WHILE CLOSING CONNECTION WITH THE DATABASE");
       System.err.println(ex.getMessage());
       System.exit(ex.getErrorCode());
+    }
+  }
+
+  /**
+   * Estrae le credenziali dall'header HTTP.
+   * 
+   * @param req richiesta HTTP
+   * 
+   * @return credenziali dell'utente
+   */
+  private User getCredentials(HttpServletRequest req) {
+    String authString = req.getHeader("Authorization");
+    if (authString != null && authString.toUpperCase().startsWith(HttpServletRequest.BASIC_AUTH)) {  
+      String base64Credentials = authString.substring(HttpServletRequest.BASIC_AUTH.length()).trim();
+      byte[] credentialsDecoded = Base64.getDecoder().decode(base64Credentials);
+      String credentials = new String(credentialsDecoded, StandardCharsets.UTF_8);
+      final String[] values = credentials.split(":", 2);
+      return new User(values[0], values[1]);
+    } else {
+      return null;
     }
   }
 }

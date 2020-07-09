@@ -42,22 +42,6 @@ public class JSONparser {
     }
 
     /**
-     * Estrae le credenziali da usare per autenticare un utente.
-     * Per la password si suppone ne venga inviato l'hash calcolato
-     * con una funzione di hash a 256 bit.
-     * 
-     * @return credenziali dell'utente se sono state trovate, altrimenti
-     * null
-     */
-    public User getLoginCredentials() {
-        try {
-            return new User(this.object.getJSONObject("user"));
-        } catch (JSONException ex) {
-            return null;
-        }
-    }
-
-    /**
      * Controlla se la richiesta è solo per un login.
      * 
      * @return true se è una richiesta di solo login, altrimenti false
