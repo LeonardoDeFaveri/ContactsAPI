@@ -6,6 +6,7 @@ package utils.keys;
  * di tipo Call.
  */
 public interface CallKeys {
+    public final String ID = "id";
     public final String CALLER = "caller";
     public final String CALLED = "called";
     public final String TIMESTAMP = "timestamp";

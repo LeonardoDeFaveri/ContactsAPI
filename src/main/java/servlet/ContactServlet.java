@@ -304,7 +304,51 @@ public class ContactServlet extends HttpServlet {
             error.put(ErrorKeys.TITLE, "Failed Authentication");
             error.put(ErrorKeys.CODE, ErrorCodes.CREDENTIALS_MISMATCH);
             error.put(ErrorKeys.MESSAGE, 
-              "The credentials of the user are different from the credentials of thw owner user of the group");
+              "The credentials of the user are different from the credentials of the owner user of the group");
+            error.put(ErrorKeys.SUGGESTION, 
+              "Try checking the authentication parameters provided or the owner user sent");
+            out.write(error.toString());
+          }
+        }
+        break;
+      
+      // Inserimento di una chiamata
+      case FirstLevelValues.CALLS:
+        Call call = jsonParser.getCall();
+        if (call == null) {
+          resp.setStatus((HttpServletResponse.SC_BAD_REQUEST));
+          error = new JSONObject();
+          error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
+          error.put(ErrorKeys.TITLE, "Error while interpreting the message");
+          error.put(ErrorKeys.CODE, ErrorCodes.WRONG_SYNTAX);
+          error.put(ErrorKeys.MESSAGE,
+              "An error has occured while trying to pull out needed information about the call from the text");
+          error.put(ErrorKeys.SUGGESTION, "Try checking the syntax");
+          out.write(error.toString());
+        } else {
+          if (call.getCaller().getAssociatedUser().equals(user)) {
+            int id = this.dbManager.insertCall(call);
+            if (id == -1) {
+              resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                error = new JSONObject();
+                error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
+                error.put(ErrorKeys.TITLE, "Error during insertion");
+                error.put(ErrorKeys.CODE, ErrorCodes.INSERTION_FAILURE);
+                error.put(ErrorKeys.MESSAGE, "An error during call insertion has occured");
+                error.put(ErrorKeys.SUGGESTION, "Retry later");
+                out.write(error.toString());
+            } else {
+              resp.setStatus(HttpServletResponse.SC_CREATED);
+              resp.setHeader("Location", req.getRequestURL().toString() + id);
+            }
+          } else {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            error = new JSONObject();
+            error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
+            error.put(ErrorKeys.TITLE, "Failed Authentication");
+            error.put(ErrorKeys.CODE, ErrorCodes.CREDENTIALS_MISMATCH);
+            error.put(ErrorKeys.MESSAGE, 
+              "The credentials of the user are different from the credentials of the associated user of the caller");
             error.put(ErrorKeys.SUGGESTION, 
               "Try checking the authentication parameters provided or the owner user sent");
             out.write(error.toString());

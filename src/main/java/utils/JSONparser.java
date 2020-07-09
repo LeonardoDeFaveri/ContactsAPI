@@ -105,4 +105,17 @@ public class JSONparser {
             return null;
         }
     }
+
+    /**
+     * Restituisce la chiamata specificato.
+     * 
+     * @return chiamata se è stata trovata, altrimenti null
+     */
+    public Call getCall() {
+        try {
+            return new Call(this.object.getJSONObject("call"));
+        } catch (JSONException ex) {
+            return null;
+        }
+    }
 }

@@ -232,13 +232,41 @@ public class DatabaseManager {
                     query.setString(2, email.getDescription());
                 }
                 query.setInt(3, contactId);
-                query.executeQuery();
+                ResultSet resul = query.executeQuery();
+                resul.first();
+                if (!resul.getBoolean(1)) {
+                    notInserted.add(email);
+                }
             } catch (SQLException ex) {
                 System.err.println(ex.getMessage());
                 notInserted.add(email);
             }
         });
         return notInserted;
+    }
+
+    /**
+     * Inserisce una chiamata.
+     * 
+     * @param call chiamata da inserire
+     * 
+     * @return id della chiamata è stata inserita, altrimenti -1
+     */
+    public int insertCall(Call call) {
+        try {
+            PreparedStatement query = this.connection
+                .prepareStatement("SELECT insert_call(?, ?, ?, ?)");
+            query.setInt(1, call.getCaller().getId());
+            query.setInt(2, call.getCalled().getId());
+            query.setTimestamp(3, call.getTimestamp());
+            query.setLong(4, call.getDuration());
+            ResultSet result = query.executeQuery();
+            result.first();
+            return result.getInt(1);
+        } catch (SQLException ex) {
+            System.err.println(ex.getMessage());
+            return -1;
+        }
     }
 
     /**

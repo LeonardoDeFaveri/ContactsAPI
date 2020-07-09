@@ -11,5 +11,6 @@ public interface FirstLevelValues {
     public final String GROUPS = "groups";
     public final String PHONE_NUMBERS = "phoneNumbers";
     public final String EMAILS = "emails";
+    public final String CALLS = "calls";
     public final String NOT_PROVIDED = "notProvided";
 }

@@ -11,12 +11,13 @@ import utils.keys.CallKeys;
  * La classe rappresenta una telefonata tra due contatti.
  */
 public class Call {
+    private int id;
     private Contact caller;
     private Contact called;
     private Timestamp timestamp;
     private long duration;
 
-    public Call(Contact caller, Contact called, Timestamp timestamp, long duration) {
+    public Call(int id, Contact caller, Contact called, Timestamp timestamp, long duration) {
         this.caller = caller;
         this.called = called;
         this.timestamp = timestamp;
@@ -24,7 +25,7 @@ public class Call {
     }
 
     public Call(Contact caller, Contact called, Timestamp timestamp) {
-        this(caller, called, timestamp, 0);
+        this(-1, caller, called, timestamp, 0);
     }
 
     /**
@@ -36,10 +37,20 @@ public class Call {
      *      probabilmente non sono stati forniti
      */
     public Call(JSONObject JSONCall) throws JSONException{
+        this.id = JSONCall.optInt(CallKeys.ID, -1);
         this.caller = new Contact(JSONCall.getJSONObject(CallKeys.CALLER));
         this.called = new Contact(JSONCall.getJSONObject(CallKeys.CALLED));
         this.timestamp = new Timestamp(JSONCall.getLong(CallKeys.TIMESTAMP));
         this.duration = JSONCall.optLong(CallKeys.DURATION);
+    }
+
+    /**
+     * Restituisce l'id della chiamata.
+     * 
+     * @return id della chiamata
+     */
+    public int getId() {
+        return this.id;
     }
 
     /**
@@ -89,6 +100,7 @@ public class Call {
      */
     public JSONObject toJSON() {
         JSONObject call = new JSONObject();
+        call.put(CallKeys.ID, this.id);
         call.put(CallKeys.CALLER, this.caller.toJSON());
         call.put(CallKeys.CALLED, this.called.toJSON());
         call.put(CallKeys.TIMESTAMP, this.timestamp.getTime());
