@@ -143,6 +143,36 @@ public class DatabaseManager {
     }
 
     /**
+     * Inserisce dei contatti in un gruppo.
+     * 
+     * @param contacts contatti da inserire
+     * @param groupId id del gruppo nel quale inserire i contatti
+     * 
+     * @return lista di tutti i contatti che non sono stati inseriti,
+     *      se non ci sono stati problemi la lista è vuota
+     */
+    public ArrayList<Contact> insertContactsInGroup(ArrayList<Contact> contacts, int groupId) {
+        ArrayList<Contact> notInserted = new ArrayList<>();
+        contacts.forEach((contact) -> {
+            try {
+                PreparedStatement query = this.connection
+                    .prepareStatement("SELECT insert_contact_in_group(?, ?)");
+                query.setInt(1, groupId);
+                query.setInt(2, contact.getId());
+                ResultSet result = query.executeQuery();
+                result.first();
+                if (result.getBoolean(1) == false) {
+                    notInserted.add(contact);
+                }
+            } catch (SQLException ex) {
+                System.err.println(ex.getMessage());
+                notInserted.add(contact);
+            }
+        });
+        return notInserted;
+    }
+
+    /**
      * Inserisce dei nuovi numeri di telefono e li associa ad un contatto.
      * 
      * @param phoneNumbers numeri da inserire

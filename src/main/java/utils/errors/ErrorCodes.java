@@ -14,4 +14,5 @@ public interface ErrorCodes {
     public final int WRONG_URL_COMPONENT = 7;
     public final int MISSING_AUTHENTICATION = 8;
     public final int FAILED_AUTHENTICATION = 9;
+    public final int CREDENTIALS_MISMATCH = 10;
 }
