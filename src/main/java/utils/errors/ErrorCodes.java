@@ -15,4 +15,5 @@ public interface ErrorCodes {
     public final int MISSING_AUTHENTICATION = 8;
     public final int FAILED_AUTHENTICATION = 9;
     public final int CREDENTIALS_MISMATCH = 10;
+    public final int WRONG_OBJECT_ID = 11;
 }

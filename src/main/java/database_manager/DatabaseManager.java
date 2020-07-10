@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
 
+import database_manager.column_labels.*;
 import models.*;
 
 /**
@@ -267,6 +268,186 @@ public class DatabaseManager {
             System.err.println(ex.getMessage());
             return -1;
         }
+    }
+
+    /**
+     * Estrae un utente in base al proprio indirizzo email.
+     * 
+     * @param email indirizzo email dell'utente
+     * 
+     * @return utente se è stato trovato, altrimenti null
+     */
+    public User getUser(String email) {
+        User user = null;
+        try {
+            PreparedStatement query = this.connection.prepareStatement(
+                "SELECT * FROM users WHERE email = ?"
+            );
+            query.setString(1, email);
+            ResultSet result = query.executeQuery();
+            if (result.first()) {
+                user = new User(
+                    email,
+                    result.getString(UserLabels.PASSWORD)
+                );
+            }
+        } catch (SQLException ex) {
+            System.err.println(ex.getMessage());
+        }
+        return user;
+    }
+
+    /**
+     * Estrae un contatto in base all'id specificato.
+     * 
+     * @param id id del contatto da estrarre
+     * @param user utente che sta eseguendo la query
+     * 
+     * @return contatto se è stato trovato, altrimenti null
+     */
+    public Contact getContact(int id, User user) {
+        Contact contatto = null;
+        try {
+            PreparedStatement query = this.connection
+                .prepareStatement("SELECT * FROM contacts WHERE id = ? AND owner_user = ?");
+            query.setInt(1, id);
+            query.setString(2, user.getEmail());
+            ResultSet result = query.executeQuery();
+            if (result.first()) {
+                String associatedUserEmail = result.getString(ContactLabels.ASSOCIATED_USER);
+                contatto = new Contact(
+                    id,
+                    result.getString(ContactLabels.FIRST_NAME),
+                    result.getString(ContactLabels.FAMILY_NAME),
+                    result.getString(ContactLabels.SECOND_NAME),
+                    user,
+                    (associatedUserEmail == null) ? null : this.getUser(associatedUserEmail),
+                    this.getEmails(id, user),
+                    this.getPhoneNumbers(id, user)
+                );
+            }
+        } catch (SQLException ex) {
+            System.err.println(ex.getMessage());
+        }
+        return contatto;
+    }
+
+    /**
+     * Estrae tutti i contatti associati ad un utente.
+     * 
+     * @param user utente per il quale estrarre i contatti
+     * 
+     * @return contatti se ne sono stati trovati, altrimenti 
+     *      un array vuoto
+     */
+    public ArrayList<Contact> getContacts(User user) {
+        ArrayList<Contact> contacts = new ArrayList<>();
+        try {
+            PreparedStatement query = this.connection
+                .prepareStatement("SELECT * FROM contacts WHERE owner_user = ?");
+            query.setString(1, user.getEmail());
+            ResultSet result = query.executeQuery();
+            if (result.first()) {
+                do {
+                    int id = result.getInt(ContactLabels.ID);
+                    String associatedUserEmail = result.getString(ContactLabels.ASSOCIATED_USER);
+                    contacts.add(new Contact(id,
+                        result.getString(ContactLabels.FIRST_NAME),
+                        result.getString(ContactLabels.FAMILY_NAME),
+                        result.getString(ContactLabels.SECOND_NAME),
+                        user,
+                        (associatedUserEmail == null) ? null : this.getUser(associatedUserEmail),
+                        this.getEmails(id, user),
+                        this.getPhoneNumbers(id, user)
+                    ));
+                } while (result.next());
+            }
+        } catch (SQLException ex) {
+            System.err.println(ex.getMessage());
+        }
+        return contacts;
+    }
+
+    /**
+     * Estrae tutti i numeri di telefono di un contatto.
+     * 
+     * @param id id del contatto per il quale estrarre i
+     *      numeri di telefono
+     * @param user utente che sta eseguendo la query
+     * 
+     * @return numeri di telefono associati al contatto se ne sono
+     *      stati trovati, altrimenti un'array vuoto
+     */
+    public ArrayList<PhoneNumber> getPhoneNumbers(int id, User user) {
+        ArrayList<PhoneNumber> phoneNumbers = new ArrayList<>();
+        try {
+            PreparedStatement query = this.connection
+                .prepareStatement(
+                    "SELECT * FROM phone_numbers P " +
+                        "INNER JOIN contacts_numbers CN " +
+                            "ON P.id = CN.phone_id " +
+                        "INNER JOIN contacts C " + 
+                            "ON CN.contact_id = C.id " +
+                    "WHERE C.id = ? AND C.owner_user = ?"
+                );
+            query.setInt(1, id);
+            query.setString(2, user.getEmail());
+            ResultSet result = query.executeQuery();
+            if(result.first()) {
+                do {
+                    phoneNumbers.add(new PhoneNumber(
+                        result.getInt(PhoneNumbersLabels.ID),
+                        result.getString(PhoneNumbersLabels.COUNTRY_CODE),
+                        result.getString(PhoneNumbersLabels.AREA_CODE),
+                        result.getString(PhoneNumbersLabels.PREFIX),
+                        result.getString(PhoneNumbersLabels.PHONE_LINE),
+                        result.getString(PhoneNumbersLabels.DESCRIPTION)
+                    ));
+                } while (result.next());
+            }
+        } catch (SQLException ex) {
+            System.err.println(ex.getMessage());
+        }
+        return phoneNumbers;
+    }
+
+    /**
+     * Estrae tutti gli indirizzi email di un contatto.
+     * 
+     * @param id id del contatto per il quale estrarre gli
+     *      indirizzi email
+     * @param user utente che sta eseguendo la query
+     * 
+     * @return indirizzi email associati al contatto se ne sono
+     *      stati trovati, altrimenti un'array vuoto
+     */
+    public ArrayList<Email> getEmails (int id, User user) {
+        ArrayList<Email> emails = new ArrayList<>();
+        try {
+            PreparedStatement query = this.connection
+                .prepareStatement(
+                    "SELECT * FROM emails E " +
+                    "INNER JOIN contacts_emails CE " +
+                        "ON E.email = CE.email " +
+                    "INNER JOIN contacts C " +
+                        "ON CE.contact_id = C.id " +
+                    "WHERE C.id = ? AND C.owner_user = ?"
+                );
+            query.setInt(1, id);
+            query.setString(2, user.getEmail());
+            ResultSet result = query.executeQuery();
+            if (result.first()) {
+                do {
+                    emails.add(new Email(
+                        result.getString(EmailLabels.EMAIL),
+                        result.getString(EmailLabels.DESCRIPTION)
+                    ));
+                } while (result.next());
+            }
+        } catch (SQLException ex) {
+            System.err.println(ex.getMessage());
+        }
+        return emails;
     }
 
     /**

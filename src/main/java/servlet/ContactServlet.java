@@ -44,19 +44,6 @@ public class ContactServlet extends HttpServlet {
     PrintWriter out = resp.getWriter();
     resp.setCharacterEncoding("UTF-8");
 
-    String contentType = req.getContentType();
-    if (contentType == null || !contentType.equals("application/json")) {
-      resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-      error = new JSONObject();
-      error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
-      error.put(ErrorKeys.TITLE, "Error while receiving the message");
-      error.put(ErrorKeys.CODE, ErrorCodes.INVALID_CONTENT_TYPE);
-      error.put(ErrorKeys.MESSAGE, "An error has occured while receiving the message. The contentType is incorrect");
-      error.put(ErrorKeys.SUGGESTION, "Try changing the content type to 'application/json' or try sending a JSON file");
-      out.write(error.toString());
-      return;
-    }
-
     PathParser pathParser = new PathParser(req.getPathInfo(), req.getParameterMap());
     ArrayList<String> pathTokens = pathParser.getPathTokens();
     if (pathTokens.size() == 0) {
@@ -89,7 +76,35 @@ public class ContactServlet extends HttpServlet {
 
     switch (pathTokens.get(0)) {
       case FirstLevelValues.CONTACTS:
-        
+        try {
+          int id = Integer.parseInt(pathTokens.get(1));
+          Contact contact = this.dbManager.getContact(id, user);
+          if (contact == null) {
+            resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+          } else {
+            resp.setStatus(HttpServletResponse.SC_OK);
+            out.write(contact.toJSON().toString());
+          }
+        } catch (IndexOutOfBoundsException ex) {
+          ArrayList<Contact> contacts = this.dbManager.getContacts(user);
+          if (contacts.size() == 0) {
+            resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+          } else {
+            resp.setStatus(HttpServletResponse.SC_OK);
+            JSONArray JSONContacts = new JSONArray(contacts);
+            out.write(JSONContacts.toString());
+          }
+        } catch (NumberFormatException ex) {
+          resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+          error = new JSONObject();
+          error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
+          error.put(ErrorKeys.TITLE, "Error while interpreting the URL");
+          error.put(ErrorKeys.CODE, ErrorCodes.WRONG_OBJECT_ID);
+          error.put(ErrorKeys.MESSAGE, "The object id is incorrect");
+          error.put(ErrorKeys.SUGGESTION, "Try checking the object id  in the URL");
+          out.write(error.toString());
+          break;
+        }
         break;
     
       default:
