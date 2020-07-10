@@ -2,7 +2,9 @@ package utils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.ArrayList;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -100,6 +102,72 @@ public class JSONparser {
             return new Call(this.object.getJSONObject("call"));
         } catch (JSONException ex) {
             return null;
+        }
+    }
+
+    /**
+     * Restituisce tutti i contatti specificati.
+     * 
+     * @return contatti se ne sono stati trovati, altrimenti
+     *      un array vuoto
+     */
+    public ArrayList<Contact> getContacts() {
+        try {
+            JSONArray JSONContacts = this.object.getJSONArray("contacts");
+            ArrayList<Contact> contacts = new ArrayList<>(JSONContacts.length());
+            JSONContacts.forEach((object) -> {
+                if (object instanceof JSONObject) {
+                    JSONObject JSONContact = (JSONObject) object;
+                    contacts.add(new Contact(JSONContact));
+                }
+            });
+            return contacts;
+        } catch (JSONException ex) {
+            return new ArrayList<>();
+        }
+    }
+
+    /**
+     * Restituisce tutti i numeri di telefono specificati.
+     * 
+     * @return numeri di telefono se ne sono stati trovati, altrimenti
+     *      un array vuoto
+     */
+    public ArrayList<PhoneNumber> getPhoneNumbers() {
+        try {
+            JSONArray JSONPhoneNumbers = this.object.getJSONArray("phoneNumbers");
+            ArrayList<PhoneNumber> phoneNumbers = new ArrayList<>(JSONPhoneNumbers.length());
+            JSONPhoneNumbers.forEach((object) -> {
+                if (object instanceof JSONObject) {
+                    JSONObject JSONPhoneNumber = (JSONObject) object;
+                    phoneNumbers.add(new PhoneNumber(JSONPhoneNumber));
+                }
+            });
+            return phoneNumbers;
+        } catch (JSONException ex) {
+            return new ArrayList<>();
+        }
+    }
+
+    /**
+     * Restituisce tutti gli indirizzi email specificati.
+     * 
+     * @return indirizzi email se ne sono stati trovati, altrimenti
+     *      un array vuoto
+     */
+    public ArrayList<Email> getEmails() {
+        try {
+            JSONArray JSONEmails = this.object.getJSONArray("emails");
+            ArrayList<Email> emails = new ArrayList<>(JSONEmails.length());
+            JSONEmails.forEach((object) -> {
+                if (object instanceof JSONObject) {
+                    JSONObject JSONEmail = (JSONObject) object;
+                    emails.add(new Email(JSONEmail));
+                }
+            });
+            return emails;
+        } catch (JSONException ex) {
+            return new ArrayList<>();
         }
     }
 }

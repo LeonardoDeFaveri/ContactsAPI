@@ -3,6 +3,7 @@ package servlet;
 import models.*;
 import utils.*;
 import utils.errors.*;
+import utils.url_level_values.*;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -58,8 +59,8 @@ public class ContactServlet extends HttpServlet {
       error.put(ErrorKeys.TITLE, "Missing Authenticatio");
       error.put(ErrorKeys.CODE, ErrorCodes.MISSING_AUTHENTICATION);
       error.put(ErrorKeys.MESSAGE, "Authentication parameters have not been provided");
-      error.put(ErrorKeys.SUGGESTION, 
-        "Provide authentication parameters or check the 'Authentication' header: it must be of type 'basic'");
+      error.put(ErrorKeys.SUGGESTION,
+          "Provide authentication parameters or check the 'Authentication' header: it must be of type 'basic'");
       out.write(error.toString());
       return;
     }
@@ -103,10 +104,9 @@ public class ContactServlet extends HttpServlet {
           error.put(ErrorKeys.MESSAGE, "The object id is incorrect");
           error.put(ErrorKeys.SUGGESTION, "Try checking the object id  in the URL");
           out.write(error.toString());
-          break;
         }
         break;
-    
+
       default:
         break;
     }
@@ -120,7 +120,7 @@ public class ContactServlet extends HttpServlet {
     JSONObject error;
     PrintWriter out = resp.getWriter();
     resp.setCharacterEncoding("UTF-8");
-    
+
     String contentType = req.getContentType();
     if (contentType == null || !contentType.equals("application/json")) {
       resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -175,12 +175,12 @@ public class ContactServlet extends HttpServlet {
       error.put(ErrorKeys.TITLE, "Missing Authenticatio");
       error.put(ErrorKeys.CODE, ErrorCodes.MISSING_AUTHENTICATION);
       error.put(ErrorKeys.MESSAGE, "Authentication parameters have not been provided");
-      error.put(ErrorKeys.SUGGESTION, 
-        "Provide authentication parameters or check the 'Authentication' header: it must be of type 'basic'");
+      error.put(ErrorKeys.SUGGESTION,
+          "Provide authentication parameters or check the 'Authentication' header: it must be of type 'basic'");
       out.write(error.toString());
       return;
     }
-    
+
     // Se l'utente non sta tentando di registrarsi, controlla le credenziali
     if (!pathTokens.get(0).equals(FirstLevelValues.USERS)) {
       if (!this.dbManager.testCredentials(user)) {
@@ -276,115 +276,275 @@ public class ContactServlet extends HttpServlet {
 
       // Creazione di un contatto
       case FirstLevelValues.CONTACTS:
-        Contact contact2 = jsonParser.getContact();
-        if (contact2 == null) {
-          resp.setStatus((HttpServletResponse.SC_BAD_REQUEST));
-          error = new JSONObject();
-          error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
-          error.put(ErrorKeys.TITLE, "Error while interpreting the message");
-          error.put(ErrorKeys.CODE, ErrorCodes.WRONG_SYNTAX);
-          error.put(ErrorKeys.MESSAGE,
-              "An error has occured while trying to pull out needed information about the contact from the text");
-          error.put(ErrorKeys.SUGGESTION, "Try checking the syntax");
-          out.write(error.toString());
-        } else {
-          if (contact2.getOwner().equals(user) &&
-            (contact2.getAssociatedUser() == null || contact2.getAssociatedUser().equals(user))
-          ) {
-            int id = this.dbManager.insertContact(contact2);
-            if (id == -1) {
-              resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-              error = new JSONObject();
-              error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
-              error.put(ErrorKeys.TITLE, "Error during insertion");
-              error.put(ErrorKeys.CODE, ErrorCodes.INSERTION_FAILURE);
-              error.put(ErrorKeys.MESSAGE, "An error during contact insertion has occured");
-              error.put(ErrorKeys.SUGGESTION, "Retry later");
-              out.write(error.toString());
-            } else {
-              resp.setStatus(HttpServletResponse.SC_CREATED);
-              resp.setHeader("Location", req.getRequestURL().toString() + id);
-            }
-          } else {
-            // Le credenziali con le quali si è autenticato l'utente devono
-            // essere le stesse presenti nel campo 'owner' o, se specificato,
-            // nel campo 'associateUser'
-            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            error = new JSONObject();
-            error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
-            error.put(ErrorKeys.TITLE, "Failed Authentication");
-            error.put(ErrorKeys.CODE, ErrorCodes.CREDENTIALS_MISMATCH);
-            error.put(ErrorKeys.MESSAGE, 
-              "The credentials of the user are different from the credentials of the owner user of the contact and/or from the credentials of the associated user");
-            error.put(ErrorKeys.SUGGESTION, 
-              "Try checking the authentication parameters provided or the owner and/or associated user sent");
-            out.write(error.toString());
+        try {
+          int id = Integer.parseInt(pathTokens.get(1));
+          String secondLevelValue;
+          try {
+            secondLevelValue = pathTokens.get(2);
+          } catch (IndexOutOfBoundsException ex) {
+            secondLevelValue = SecondLevelValues.NOT_PROVIDED;
           }
-        }
-        break;
-        
-      // Creazione di un gruppo
-      case FirstLevelValues.GROUPS:
-        Group group = jsonParser.getGroup();
-        if (group == null) {
-          resp.setStatus((HttpServletResponse.SC_BAD_REQUEST));
-          error = new JSONObject();
-          error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
-          error.put(ErrorKeys.TITLE, "Error while interpreting the message");
-          error.put(ErrorKeys.CODE, ErrorCodes.WRONG_SYNTAX);
-          error.put(ErrorKeys.MESSAGE,
-              "An error has occured while trying to pull out needed information about the group from the text");
-          error.put(ErrorKeys.SUGGESTION, "Try checking the syntax");
-          out.write(error.toString());
-        } else {
-          if (group.getOwner().equals(user)) {
-            int id = this.dbManager.insertGroup(group);
-            if (id == -1) {
-              resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-              error = new JSONObject();
-              error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
-              error.put(ErrorKeys.TITLE, "Error during insertion");
-              error.put(ErrorKeys.CODE, ErrorCodes.INSERTION_FAILURE);
-              error.put(ErrorKeys.MESSAGE, "An error during group insertion has occured");
-              error.put(ErrorKeys.SUGGESTION, "Retry later");
-              out.write(error.toString());
-            } else {
-              ArrayList<Contact> notInsertedContacts = this.dbManager.insertContactsInGroup(group.getContacts(), id);
-              if (notInsertedContacts.size() == 0) {
-                resp.setStatus(HttpServletResponse.SC_CREATED);
-                resp.setHeader("Location", req.getRequestURL().toString() + id);
-              } else {
+
+          switch (secondLevelValue) {
+            // Aggiunge numeri di telefono ad un contatto
+            case SecondLevelValues.PHONE_NUMBERS:
+              ArrayList<PhoneNumber> phoneNumbers = jsonParser.getPhoneNumbers();
+              ArrayList<PhoneNumber> notInsertedPhoneNumbers = this.dbManager.insertPhoneNumbers(phoneNumbers, id);
+              if (notInsertedPhoneNumbers.size() > 0) {
                 resp.setStatus(HttpServletResponse.SC_CONFLICT);
                 error = new JSONObject();
                 error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
                 error.put(ErrorKeys.CODE, ErrorCodes.INSERTION_FAILURE);
 
                 JSONObject notInserted = new JSONObject();
-                notInserted.put("contacts", new JSONArray(notInsertedContacts));
+                if (notInsertedPhoneNumbers.size() > 0) {
+                  notInserted.put("phoneNumbers", new JSONArray(notInsertedPhoneNumbers));
+                }
+                error.put(ErrorKeys.DATA, notInserted);
+                error.put(ErrorKeys.TITLE, "Insertion failure");
+                error.put(ErrorKeys.MESSAGE, "Some emails have not been inserted");
+                error.put(ErrorKeys.SUGGESTION, "Try checking the values and retry");
+                out.write(error.toString());
+              } else {
+                resp.setStatus(HttpServletResponse.SC_CREATED);
+                resp.setHeader("Location", req.getRequestURL().toString());
+              }
+              break;
+
+            // Aggiunge indirizzi email ad un contatto
+            case SecondLevelValues.EMAILS:
+              ArrayList<Email> emails = jsonParser.getEmails();
+              ArrayList<Email> notInsertedEmails = this.dbManager.insertEmails(emails, id);
+              if (notInsertedEmails.size() > 0) {
+                resp.setStatus(HttpServletResponse.SC_CONFLICT);
+                error = new JSONObject();
+                error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
+                error.put(ErrorKeys.CODE, ErrorCodes.INSERTION_FAILURE);
+
+                JSONObject notInserted = new JSONObject();
+                if (notInsertedEmails.size() > 0) {
+                  notInserted.put("emails", new JSONArray(notInsertedEmails));
+                }
+                error.put(ErrorKeys.DATA, notInserted);
+                error.put(ErrorKeys.TITLE, "Insertion failure");
+                error.put(ErrorKeys.MESSAGE, "Some phone numbers have not been inserted");
+                error.put(ErrorKeys.SUGGESTION, "Try checking the values and retry");
+                out.write(error.toString());
+              } else {
+                resp.setStatus(HttpServletResponse.SC_CREATED);
+                resp.setHeader("Location", req.getRequestURL().toString());
+              }
+              break;
+
+            case SecondLevelValues.NOT_PROVIDED:
+              resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+              error = new JSONObject();
+              error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
+              error.put(ErrorKeys.TITLE, "Error while interpreting the URL");
+              error.put(ErrorKeys.CODE, ErrorCodes.MISSING_URL_COMPONENT);
+              error.put(ErrorKeys.MESSAGE, "The URL is incomplete");
+              error.put(ErrorKeys.SUGGESTION, "Try specifying a second level component in the URL");
+              out.write(error.toString());
+              break;
+
+            default:
+              resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+              error = new JSONObject();
+              error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
+              error.put(ErrorKeys.TITLE, "Error while interpreting the URL");
+              error.put(ErrorKeys.CODE, ErrorCodes.WRONG_URL_COMPONENT);
+              error.put(ErrorKeys.MESSAGE, "The URL is incorrect");
+              error.put(ErrorKeys.SUGGESTION, "Try specifying a valid second level component in the URL");
+              out.write(error.toString());
+              break;
+          }
+        } catch (NumberFormatException ex) {
+          resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+          error = new JSONObject();
+          error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
+          error.put(ErrorKeys.TITLE, "Error while interpreting the URL");
+          error.put(ErrorKeys.CODE, ErrorCodes.WRONG_OBJECT_ID);
+          error.put(ErrorKeys.MESSAGE, "The object id is incorrect");
+          error.put(ErrorKeys.SUGGESTION, "Try checking the object id  in the URL");
+          out.write(error.toString());
+        } catch (IndexOutOfBoundsException ex) {
+          Contact contact2 = jsonParser.getContact();
+          if (contact2 == null) {
+            resp.setStatus((HttpServletResponse.SC_BAD_REQUEST));
+            error = new JSONObject();
+            error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
+            error.put(ErrorKeys.TITLE, "Error while interpreting the message");
+            error.put(ErrorKeys.CODE, ErrorCodes.WRONG_SYNTAX);
+            error.put(ErrorKeys.MESSAGE,
+                "An error has occured while trying to pull out needed information about the contact from the text");
+            error.put(ErrorKeys.SUGGESTION, "Try checking the syntax");
+            out.write(error.toString());
+          } else {
+            if (contact2.getOwner().equals(user)
+                && (contact2.getAssociatedUser() == null || contact2.getAssociatedUser().equals(user))) {
+              int id = this.dbManager.insertContact(contact2);
+              if (id == -1) {
+                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                error = new JSONObject();
+                error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
+                error.put(ErrorKeys.TITLE, "Error during insertion");
+                error.put(ErrorKeys.CODE, ErrorCodes.INSERTION_FAILURE);
+                error.put(ErrorKeys.MESSAGE, "An error during contact insertion has occured");
+                error.put(ErrorKeys.SUGGESTION, "Retry later");
+                out.write(error.toString());
+              } else {
+                resp.setStatus(HttpServletResponse.SC_CREATED);
+                resp.setHeader("Location", req.getRequestURL().toString() + id);
+              }
+            } else {
+              // Le credenziali con le quali si è autenticato l'utente devono
+              // essere le stesse presenti nel campo 'owner' o, se specificato,
+              // nel campo 'associateUser'
+              resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+              error = new JSONObject();
+              error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
+              error.put(ErrorKeys.TITLE, "Failed Authentication");
+              error.put(ErrorKeys.CODE, ErrorCodes.CREDENTIALS_MISMATCH);
+              error.put(ErrorKeys.MESSAGE,
+                  "The credentials of the user are different from the credentials of the owner user of the contact and/or from the credentials of the associated user");
+              error.put(ErrorKeys.SUGGESTION,
+                  "Try checking the authentication parameters provided or the owner and/or associated user sent");
+              out.write(error.toString());
+            }
+          }
+        }
+        break;
+
+      // Creazione di un gruppo
+      case FirstLevelValues.GROUPS:
+        try {
+          int id = Integer.parseInt(pathTokens.get(1));
+          String secondLevelValue;
+          try {
+            secondLevelValue = pathTokens.get(2);
+          } catch (IndexOutOfBoundsException ex) {
+            secondLevelValue = SecondLevelValues.NOT_PROVIDED;
+          }
+
+          switch (secondLevelValue) {
+            // Aggiugne nuovi contatti al gruppo
+            case SecondLevelValues.CONTACTS:
+              ArrayList<Contact> contacts = jsonParser.getContacts();
+              ArrayList<Contact> notInsertedContacts = this.dbManager.insertContactsInGroup(contacts, id);
+              if (notInsertedContacts.size() > 0) {
+                resp.setStatus(HttpServletResponse.SC_CONFLICT);
+                error = new JSONObject();
+                error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
+                error.put(ErrorKeys.CODE, ErrorCodes.INSERTION_FAILURE);
+
+                JSONObject notInserted = new JSONObject();
+                if (notInsertedContacts.size() > 0) {
+                  notInserted.put("contacts", new JSONArray(notInsertedContacts));
+                }
                 error.put(ErrorKeys.DATA, notInserted);
                 error.put(ErrorKeys.TITLE, "Insertion failure");
                 error.put(ErrorKeys.MESSAGE, "Some contacts have not been inserted");
                 error.put(ErrorKeys.SUGGESTION, "Try checking the values and retry");
                 out.write(error.toString());
+              } else {
+                resp.setStatus(HttpServletResponse.SC_CREATED);
+                resp.setHeader("Location", req.getRequestURL().toString());
               }
-            }
-          } else {
-            // Le credenziali con le quali si è autenticato l'utente devono
-            // essere le stesse presenti nel campo 'owner'
-            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+              break;
+          
+            case SecondLevelValues.NOT_PROVIDED:
+              resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+              error = new JSONObject();
+              error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
+              error.put(ErrorKeys.TITLE, "Error while interpreting the URL");
+              error.put(ErrorKeys.CODE, ErrorCodes.MISSING_URL_COMPONENT);
+              error.put(ErrorKeys.MESSAGE, "The URL is incomplete");
+              error.put(ErrorKeys.SUGGESTION, "Try specifying a second level component in the URL");
+              out.write(error.toString());
+              break;
+
+            default:
+              resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+              error = new JSONObject();
+              error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
+              error.put(ErrorKeys.TITLE, "Error while interpreting the URL");
+              error.put(ErrorKeys.CODE, ErrorCodes.WRONG_URL_COMPONENT);
+              error.put(ErrorKeys.MESSAGE, "The URL is incorrect");
+              error.put(ErrorKeys.SUGGESTION, "Try specifying a valid second level component in the URL");
+              out.write(error.toString());
+              break;
+          }
+        }catch (NumberFormatException ex) {
+          resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+          error = new JSONObject();
+          error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
+          error.put(ErrorKeys.TITLE, "Error while interpreting the URL");
+          error.put(ErrorKeys.CODE, ErrorCodes.WRONG_OBJECT_ID);
+          error.put(ErrorKeys.MESSAGE, "The object id is incorrect");
+          error.put(ErrorKeys.SUGGESTION, "Try checking the object id  in the URL");
+          out.write(error.toString());
+        } catch (IndexOutOfBoundsException ex) {
+          Group group = jsonParser.getGroup();
+          if (group == null) {
+            resp.setStatus((HttpServletResponse.SC_BAD_REQUEST));
             error = new JSONObject();
             error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
-            error.put(ErrorKeys.TITLE, "Failed Authentication");
-            error.put(ErrorKeys.CODE, ErrorCodes.CREDENTIALS_MISMATCH);
-            error.put(ErrorKeys.MESSAGE, 
-              "The credentials of the user are different from the credentials of the owner user of the group");
-            error.put(ErrorKeys.SUGGESTION, 
-              "Try checking the authentication parameters provided or the owner user sent");
+            error.put(ErrorKeys.TITLE, "Error while interpreting the message");
+            error.put(ErrorKeys.CODE, ErrorCodes.WRONG_SYNTAX);
+            error.put(ErrorKeys.MESSAGE,
+                "An error has occured while trying to pull out needed information about the group from the text");
+            error.put(ErrorKeys.SUGGESTION, "Try checking the syntax");
             out.write(error.toString());
+          } else {
+            if (group.getOwner().equals(user)) {
+              int id = this.dbManager.insertGroup(group);
+              if (id == -1) {
+                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                error = new JSONObject();
+                error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
+                error.put(ErrorKeys.TITLE, "Error during insertion");
+                error.put(ErrorKeys.CODE, ErrorCodes.INSERTION_FAILURE);
+                error.put(ErrorKeys.MESSAGE, "An error during group insertion has occured");
+                error.put(ErrorKeys.SUGGESTION, "Retry later");
+                out.write(error.toString());
+              } else {
+                ArrayList<Contact> notInsertedContacts = this.dbManager.insertContactsInGroup(group.getContacts(), id);
+                if (notInsertedContacts.size() == 0) {
+                  resp.setStatus(HttpServletResponse.SC_CREATED);
+                  resp.setHeader("Location", req.getRequestURL().toString() + id);
+                } else {
+                  resp.setStatus(HttpServletResponse.SC_CONFLICT);
+                  error = new JSONObject();
+                  error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
+                  error.put(ErrorKeys.CODE, ErrorCodes.INSERTION_FAILURE);
+
+                  JSONObject notInserted = new JSONObject();
+                  notInserted.put("contacts", new JSONArray(notInsertedContacts));
+                  error.put(ErrorKeys.DATA, notInserted);
+                  error.put(ErrorKeys.TITLE, "Insertion failure");
+                  error.put(ErrorKeys.MESSAGE, "Some contacts have not been inserted");
+                  error.put(ErrorKeys.SUGGESTION, "Try checking the values and retry");
+                  out.write(error.toString());
+                }
+              }
+            } else {
+              // Le credenziali con le quali si è autenticato l'utente devono
+              // essere le stesse presenti nel campo 'owner'
+              resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+              error = new JSONObject();
+              error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
+              error.put(ErrorKeys.TITLE, "Failed Authentication");
+              error.put(ErrorKeys.CODE, ErrorCodes.CREDENTIALS_MISMATCH);
+              error.put(ErrorKeys.MESSAGE,
+                  "The credentials of the user are different from the credentials of the owner user of the group");
+              error.put(ErrorKeys.SUGGESTION,
+                  "Try checking the authentication parameters provided or the owner user sent");
+              out.write(error.toString());
+            }
           }
         }
         break;
-      
+
       // Inserimento di una chiamata
       case FirstLevelValues.CALLS:
         Call call = jsonParser.getCall();
@@ -403,13 +563,13 @@ public class ContactServlet extends HttpServlet {
             int id = this.dbManager.insertCall(call);
             if (id == -1) {
               resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                error = new JSONObject();
-                error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
-                error.put(ErrorKeys.TITLE, "Error during insertion");
-                error.put(ErrorKeys.CODE, ErrorCodes.INSERTION_FAILURE);
-                error.put(ErrorKeys.MESSAGE, "An error during call insertion has occured");
-                error.put(ErrorKeys.SUGGESTION, "Retry later or check the syntax");
-                out.write(error.toString());
+              error = new JSONObject();
+              error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
+              error.put(ErrorKeys.TITLE, "Error during insertion");
+              error.put(ErrorKeys.CODE, ErrorCodes.INSERTION_FAILURE);
+              error.put(ErrorKeys.MESSAGE, "An error during call insertion has occured");
+              error.put(ErrorKeys.SUGGESTION, "Retry later or check the syntax");
+              out.write(error.toString());
             } else {
               resp.setStatus(HttpServletResponse.SC_CREATED);
               resp.setHeader("Location", req.getRequestURL().toString() + id);
@@ -420,10 +580,10 @@ public class ContactServlet extends HttpServlet {
             error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
             error.put(ErrorKeys.TITLE, "Failed Authentication");
             error.put(ErrorKeys.CODE, ErrorCodes.CREDENTIALS_MISMATCH);
-            error.put(ErrorKeys.MESSAGE, 
-              "The credentials of the user are different from the credentials of the associated user of the caller");
-            error.put(ErrorKeys.SUGGESTION, 
-              "Try checking the authentication parameters provided or the owner user sent");
+            error.put(ErrorKeys.MESSAGE,
+                "The credentials of the user are different from the credentials of the associated user of the caller");
+            error.put(ErrorKeys.SUGGESTION,
+                "Try checking the authentication parameters provided or the owner user sent");
             out.write(error.toString());
           }
         }
@@ -496,7 +656,7 @@ public class ContactServlet extends HttpServlet {
    */
   private User getCredentials(HttpServletRequest req) {
     String authString = req.getHeader("Authorization");
-    if (authString != null && authString.toUpperCase().startsWith(HttpServletRequest.BASIC_AUTH)) {  
+    if (authString != null && authString.toUpperCase().startsWith(HttpServletRequest.BASIC_AUTH)) {
       String base64Credentials = authString.substring(HttpServletRequest.BASIC_AUTH.length()).trim();
       byte[] credentialsDecoded = Base64.getDecoder().decode(base64Credentials);
       String credentials = new String(credentialsDecoded, StandardCharsets.UTF_8);
