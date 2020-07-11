@@ -68,9 +68,6 @@ public class Email {
      * @return rappresentazione JSON dell'istanza 
      */
     public JSONObject toJSON() {
-        JSONObject email = new JSONObject();
-        email.put(EmailKeys.EMAIL, this.email);
-        email.put(EmailKeys.DESCRIPTION, this.description);
-        return email;
+        return new JSONObject(this);
     }
 }

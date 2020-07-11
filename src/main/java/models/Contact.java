@@ -175,35 +175,6 @@ public class Contact {
      * @return rappresentazione JSON dell'istanza 
      */
     public JSONObject toJSON() {
-        JSONObject contact = new JSONObject();
-        
-        JSONArray phoneNumbers = new JSONArray(this.phoneNumbers.size());
-        this.phoneNumbers.forEach((object) -> {
-            if (object instanceof PhoneNumber) {
-                PhoneNumber phoneNumber = (PhoneNumber) object;
-                phoneNumbers.put(phoneNumber.toJSON());
-            }
-        });
-        JSONArray emails = new JSONArray(this.emails.size());
-        this.emails.forEach((object) -> {
-            if (object instanceof Email) {
-                Email email = (Email) object;
-                emails.put(email.toJSON());
-            }
-        });
-
-        contact.put(ContactKeys.ID, this.id);
-        contact.put(ContactKeys.FIRST_NAME, this.firstName);
-        contact.put(ContactKeys.FAMILY_NAME, this.familyName);
-        contact.put(ContactKeys.SECOND_NAME, this.secondName);
-        contact.put(ContactKeys.OWNER, this.owner.toJSON());
-        if (this.associatedUser == null) {
-            contact.put(ContactKeys.ASSOCIATED_USER, JSONObject.NULL);
-        } else {
-            contact.put(ContactKeys.ASSOCIATED_USER, this.associatedUser.toJSON());
-        }
-        contact.put(ContactKeys.PHONE_NUMBERS, phoneNumbers);
-        contact.put(ContactKeys.EMAILS, emails);
-        return contact;
+        return new JSONObject(this);
     }
 }

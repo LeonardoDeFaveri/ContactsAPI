@@ -167,13 +167,6 @@ public class PhoneNumber {
      * @return rappresentazione JSON dell'istanza 
      */
     public JSONObject toJSON() {
-        JSONObject phoneNumber = new JSONObject();
-        phoneNumber.put(PhoneNumberKeys.ID, this.id);
-        phoneNumber.put(PhoneNumberKeys.COUNTRY_CODE, this.countryCode);
-        phoneNumber.put(PhoneNumberKeys.AREA_CODE, this.areaCode);
-        phoneNumber.put(PhoneNumberKeys.PREFIX, this.prefix);
-        phoneNumber.put(PhoneNumberKeys.PHONE_LINE, this.phoneLine);
-        phoneNumber.put(PhoneNumberKeys.DESCRIPTION, this.description);
-        return phoneNumber;
+        return new JSONObject(this);
     }
 }

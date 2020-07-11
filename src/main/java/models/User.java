@@ -66,9 +66,6 @@ public class User {
      * @return rappresentazione JSON dell'istanza 
      */
     public JSONObject toJSON() {
-        JSONObject user = new JSONObject();
-        user.put(UserKeys.EMAIL, this.email);
-        user.put(UserKeys.PASSWORD, this.password);
-        return user;
+        return new JSONObject(this);
     }
 }

@@ -99,12 +99,6 @@ public class Call {
      * @return rappresentazione JSON dell'istanza 
      */
     public JSONObject toJSON() {
-        JSONObject call = new JSONObject();
-        call.put(CallKeys.ID, this.id);
-        call.put(CallKeys.CALLER, this.caller.toJSON());
-        call.put(CallKeys.CALLED, this.called.toJSON());
-        call.put(CallKeys.TIMESTAMP, this.timestamp.getTime());
-        call.put(CallKeys.DURATION, this.duration);
-        return call;
+        return new JSONObject(this);
     }
 }

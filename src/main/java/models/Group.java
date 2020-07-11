@@ -106,20 +106,6 @@ public class Group {
      * @return rappresentazione JSON dell'istanza 
      */
     public JSONObject toJSON() {
-        JSONObject group = new JSONObject();
-        
-        JSONArray contacts = new JSONArray(this.contacts.size());
-        this.contacts.forEach((object) -> {
-            if (object instanceof Contact) {
-                Contact contact = (Contact) object;
-                contacts.put(contact.toJSON());
-            }
-        });
-
-        group.put(GroupKeys.ID, this.id);
-        group.put(GroupKeys.OWNER, this.owner.toJSON());
-        group.put(GroupKeys.NAME, this.name);
-        group.put(GroupKeys.CONTACTS, contacts);
-        return group;
+        return new JSONObject(this);
     }
 }
