@@ -451,6 +451,112 @@ public class DatabaseManager {
     }
 
     /**
+     * Estrae tutti i gruppi di un utente.
+     * 
+     * @param user utente per il quale estrarre i gruppi
+     * 
+     * @return gruppi se sono stati trovati, altrimenti un
+     *      array vuoto
+     */
+    public ArrayList<Group> getGroups(User user) {
+        ArrayList<Group> groups = new ArrayList<>();
+        try {
+            PreparedStatement query = this.connection
+                .prepareStatement("SELECT * FROM groups WHERE owner_user = ?");
+            query.setString(1, user.getEmail());
+            ResultSet result = query.executeQuery();
+            if (result.first()) {
+                do {
+                    int id = result.getInt(GroupLabels.ID);
+                    groups.add(new Group(
+                        id,
+                        user,
+                        result.getString(GroupLabels.NAME),
+                        this.getContactsByGroup(id, user)
+                    ));
+                } while (result.next());
+            }
+        } catch (SQLException ex) {
+            System.err.println(ex.getMessage());
+        }
+        return groups;
+    }
+
+    /**
+     * Estrae un gruppo in base all'id specificato.
+     * 
+     * @param id id del gruppo da estrarre
+     * @param user utente che sta eseguendo la query
+     * 
+     * @return gruppo se è stato trovato, altrimenti null
+     */
+    public Group getGroup(int id, User user) {
+        Group group = null;
+        try {
+            PreparedStatement query = this.connection
+                .prepareStatement("SELECT * FROM groups WHERE id = ? AND owner_user = ?");
+            query.setInt(1, id);
+            query.setString(2, user.getEmail());
+            ResultSet result = query.executeQuery();
+            if (result.first()) {
+                group = new Group(
+                    id,
+                    this.getUser(result.getString(GroupLabels.OWNER)),
+                    result.getString(GroupLabels.NAME),
+                    this.getContactsByGroup(id, user)
+                );
+            }
+        } catch (SQLException ex) {
+            System.err.println(ex.getMessage());
+        }
+        return group;
+    }
+
+    /**
+     * Estrae tutti i contatti appartenenti ad un gruppo.
+     * 
+     * @param id id del gruppo per il quale estrarre i contatti
+     * @param user utente che sta eseguendo la query
+     * 
+     * @return contatti se sono stati trovati, altrimenti un array vuoto
+     */
+    public ArrayList<Contact> getContactsByGroup(int id, User user) {
+        ArrayList<Contact> contacts = new ArrayList<>();
+        try {
+            PreparedStatement query = this.connection
+                .prepareStatement(
+                    "SELECT * FROM contacts C " + 
+                        "INNER JOIN groups_contacts GC " +
+                            "ON C.id = GC.contact_id " +
+                        "INNER JOIN groups G " +
+                            "ON GC.group_id = G.id " +
+                        "WHERE G.id = ? AND G.owner_user = ?"
+                );
+            query.setInt(1, id);
+            query.setString(2, user.getEmail());
+            ResultSet result = query.executeQuery();
+            if (result.first()) {
+                do {
+                    int contactId = result.getInt(ContactLabels.ID);
+                    contacts.add(new Contact(
+                        id,
+                        result.getString(ContactLabels.FIRST_NAME),
+                        result.getString(ContactLabels.FAMILY_NAME),
+                        result.getString(ContactLabels.SECOND_NAME),
+                        user,
+                        this.getUser(ContactLabels.ASSOCIATED_USER),
+                        this.getEmails(contactId, user),
+                        this.getPhoneNumbers(contactId, user)
+                    ));
+                } while (result.next());
+            }
+        } catch (SQLException ex) {
+            System.err.println(ex.getMessage());
+        }
+        return contacts;
+    }
+
+    /**
      * Chiude la connessione con il database.
      * 
      * @throws SQLException errore durante la chiusura della connessione

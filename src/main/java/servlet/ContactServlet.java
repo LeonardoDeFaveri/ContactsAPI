@@ -106,8 +106,78 @@ public class ContactServlet extends HttpServlet {
           out.write(error.toString());
         }
         break;
+      
+      case FirstLevelValues.GROUPS:
+        try {
+          int id = Integer.parseInt(pathTokens.get(1));
+          Group group = this.dbManager.getGroup(id, user);
+          if (group == null) {
+            resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+          } else {
+            try {
+              switch (pathTokens.get(2)) {
+                case SecondLevelValues.CONTACTS:
+                  resp.setStatus(HttpServletResponse.SC_OK);
+                  out.write(new JSONArray(group.getContacts()).toString());
+                  break;
+              
+                default:
+                  resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                  error = new JSONObject();
+                  error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
+                  error.put(ErrorKeys.TITLE, "Error while interpreting the URL");
+                  error.put(ErrorKeys.CODE, ErrorCodes.WRONG_URL_COMPONENT);
+                  error.put(ErrorKeys.MESSAGE, "The URL is incorrect");
+                  error.put(ErrorKeys.SUGGESTION, "Try specifying a valid second level component in the URL");
+                  out.write(error.toString());
+                  break;
+              }
+            } catch (IndexOutOfBoundsException ex) {
+              resp.setStatus(HttpServletResponse.SC_OK);
+              out.write(group.toJSON().toString());
+            }
+          }
+        } catch (IndexOutOfBoundsException ex) {
+          ArrayList<Group> groups = this.dbManager.getGroups(user);
+          if (groups.size() == 0) {
+            resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+          } else {
+            resp.setStatus(HttpServletResponse.SC_OK);
+            JSONArray JSONGroups = new JSONArray(groups);
+            out.write(JSONGroups.toString());
+          }
+        } catch (NumberFormatException ex) {
+          resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+          error = new JSONObject();
+          error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
+          error.put(ErrorKeys.TITLE, "Error while interpreting the URL");
+          error.put(ErrorKeys.CODE, ErrorCodes.WRONG_OBJECT_ID);
+          error.put(ErrorKeys.MESSAGE, "The object id is incorrect");
+          error.put(ErrorKeys.SUGGESTION, "Try checking the object id  in the URL");
+          out.write(error.toString());
+        }
+        break;
+      
+      case FirstLevelValues.NOT_PROVIDED:
+        resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+        error = new JSONObject();
+        error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
+        error.put(ErrorKeys.TITLE, "Error while interpreting the URL");
+        error.put(ErrorKeys.CODE, ErrorCodes.MISSING_URL_COMPONENT);
+        error.put(ErrorKeys.MESSAGE, "The URL is the endpoint");
+        error.put(ErrorKeys.SUGGESTION, "Try specifying a component in the URL");
+        out.write(error.toString());
+        break;
 
       default:
+        resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+        error = new JSONObject();
+        error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
+        error.put(ErrorKeys.TITLE, "Error while interpreting the URL");
+        error.put(ErrorKeys.CODE, ErrorCodes.WRONG_URL_COMPONENT);
+        error.put(ErrorKeys.MESSAGE, "The URL is incorrect");
+        error.put(ErrorKeys.SUGGESTION, "Try specifying a valid first level component in the URL");
+        out.write(error.toString());
         break;
     }
 
