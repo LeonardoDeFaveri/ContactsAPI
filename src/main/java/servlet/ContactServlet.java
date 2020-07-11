@@ -41,7 +41,6 @@ public class ContactServlet extends HttpServlet {
 
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-    JSONObject error;
     PrintWriter out = resp.getWriter();
     resp.setCharacterEncoding("UTF-8");
 
@@ -53,25 +52,13 @@ public class ContactServlet extends HttpServlet {
 
     User user = this.getCredentials(req);
     if (user == null && !pathTokens.get(0).equals(FirstLevelValues.USERS)) {
-      resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-      error = new JSONObject();
-      error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
-      error.put(ErrorKeys.TITLE, "Missing Authenticatio");
-      error.put(ErrorKeys.CODE, ErrorCodes.MISSING_AUTHENTICATION);
-      error.put(ErrorKeys.MESSAGE, "Authentication parameters have not been provided");
-      error.put(ErrorKeys.SUGGESTION,
-          "Provide authentication parameters or check the 'Authentication' header: it must be of type 'basic'");
-      out.write(error.toString());
+      resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
+      out.write(ErrorHandler.getError(ErrorCodes.MISSING_AUTHENTICATION).toString());
       return;
     }
     if (!this.dbManager.testCredentials(user)) {
-      error = new JSONObject();
-      error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
-      error.put(ErrorKeys.TITLE, "Failed Authenticatio");
-      error.put(ErrorKeys.CODE, ErrorCodes.FAILED_AUTHENTICATION);
-      error.put(ErrorKeys.MESSAGE, "The authentication process has failed");
-      error.put(ErrorKeys.SUGGESTION, "Try checking the authentication parameters provided");
-      out.write(error.toString());
+      resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
+      out.write(ErrorHandler.getError(ErrorCodes.FAILED_AUTHENTICATION).toString());
       return;
     }
 
@@ -97,13 +84,7 @@ public class ContactServlet extends HttpServlet {
           }
         } catch (NumberFormatException ex) {
           resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-          error = new JSONObject();
-          error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
-          error.put(ErrorKeys.TITLE, "Error while interpreting the URL");
-          error.put(ErrorKeys.CODE, ErrorCodes.WRONG_OBJECT_ID);
-          error.put(ErrorKeys.MESSAGE, "The object id is incorrect");
-          error.put(ErrorKeys.SUGGESTION, "Try checking the object id  in the URL");
-          out.write(error.toString());
+          out.write(ErrorHandler.getError(ErrorCodes.WRONG_OBJECT_ID).toString());
         }
         break;
       
@@ -123,13 +104,7 @@ public class ContactServlet extends HttpServlet {
               
                 default:
                   resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                  error = new JSONObject();
-                  error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
-                  error.put(ErrorKeys.TITLE, "Error while interpreting the URL");
-                  error.put(ErrorKeys.CODE, ErrorCodes.WRONG_URL_COMPONENT);
-                  error.put(ErrorKeys.MESSAGE, "The URL is incorrect");
-                  error.put(ErrorKeys.SUGGESTION, "Try specifying a valid second level component in the URL");
-                  out.write(error.toString());
+                  out.write(ErrorHandler.getError(ErrorCodes.WRONG_URL_COMPONENT).toString());
                   break;
               }
             } catch (IndexOutOfBoundsException ex) {
@@ -148,36 +123,18 @@ public class ContactServlet extends HttpServlet {
           }
         } catch (NumberFormatException ex) {
           resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-          error = new JSONObject();
-          error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
-          error.put(ErrorKeys.TITLE, "Error while interpreting the URL");
-          error.put(ErrorKeys.CODE, ErrorCodes.WRONG_OBJECT_ID);
-          error.put(ErrorKeys.MESSAGE, "The object id is incorrect");
-          error.put(ErrorKeys.SUGGESTION, "Try checking the object id  in the URL");
-          out.write(error.toString());
+          out.write(ErrorHandler.getError(ErrorCodes.WRONG_OBJECT_ID).toString());
         }
         break;
       
       case FirstLevelValues.NOT_PROVIDED:
         resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-        error = new JSONObject();
-        error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
-        error.put(ErrorKeys.TITLE, "Error while interpreting the URL");
-        error.put(ErrorKeys.CODE, ErrorCodes.MISSING_URL_COMPONENT);
-        error.put(ErrorKeys.MESSAGE, "The URL is the endpoint");
-        error.put(ErrorKeys.SUGGESTION, "Try specifying a component in the URL");
-        out.write(error.toString());
+        out.write(ErrorHandler.getError(ErrorCodes.MISSING_URL_COMPONENT).toString());
         break;
 
       default:
         resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-        error = new JSONObject();
-        error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
-        error.put(ErrorKeys.TITLE, "Error while interpreting the URL");
-        error.put(ErrorKeys.CODE, ErrorCodes.WRONG_URL_COMPONENT);
-        error.put(ErrorKeys.MESSAGE, "The URL is incorrect");
-        error.put(ErrorKeys.SUGGESTION, "Try specifying a valid first level component in the URL");
-        out.write(error.toString());
+        out.write(ErrorHandler.getError(ErrorCodes.WRONG_URL_COMPONENT).toString());
         break;
     }
 
@@ -187,20 +144,13 @@ public class ContactServlet extends HttpServlet {
 
   @Override
   protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-    JSONObject error;
     PrintWriter out = resp.getWriter();
     resp.setCharacterEncoding("UTF-8");
 
     String contentType = req.getContentType();
     if (contentType == null || !contentType.equals("application/json")) {
       resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-      error = new JSONObject();
-      error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
-      error.put(ErrorKeys.TITLE, "Error while receiving the message");
-      error.put(ErrorKeys.CODE, ErrorCodes.INVALID_CONTENT_TYPE);
-      error.put(ErrorKeys.MESSAGE, "An error has occured while receiving the message. The contentType is incorrect");
-      error.put(ErrorKeys.SUGGESTION, "Try changing the content type to 'application/json' or try sending a JSON file");
-      out.write(error.toString());
+      out.write(ErrorHandler.getError(ErrorCodes.INVALID_CONTENT_TYPE).toString());
       return;
     }
 
@@ -208,24 +158,12 @@ public class ContactServlet extends HttpServlet {
     try {
       jsonParser = new JSONparser(req.getReader());
     } catch (IOException ex) {
-      resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-      error = new JSONObject();
-      error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
-      error.put(ErrorKeys.TITLE, "Error while reading the message");
-      error.put(ErrorKeys.CODE, ErrorCodes.WRONG_SYNTAX);
-      error.put(ErrorKeys.MESSAGE, "An error has occured while trying to read the message.");
-      error.put(ErrorKeys.SUGGESTION, "Try checking the syntax");
-      out.write(error.toString());
+      resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+      out.write(ErrorHandler.getError(ErrorCodes.WRONG_SYNTAX).toString());
       return;
     } catch (JSONException ex) {
       resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-      error = new JSONObject();
-      error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
-      error.put(ErrorKeys.TITLE, "Error while reading the message");
-      error.put(ErrorKeys.CODE, ErrorCodes.WRONG_SYNTAX);
-      error.put(ErrorKeys.MESSAGE, "An error has occured while trying to read the json message.");
-      error.put(ErrorKeys.SUGGESTION, "Try to check if you sent json, or check the syntax");
-      out.write(error.toString());
+      out.write(ErrorHandler.getError(ErrorCodes.WRONG_SYNTAX).toString());
       return;
     }
 
@@ -239,28 +177,16 @@ public class ContactServlet extends HttpServlet {
     // che l'utente venga autenticato ad ogni richiesta
     User user = this.getCredentials(req);
     if (user == null && !pathTokens.get(0).equals(FirstLevelValues.USERS)) {
-      resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-      error = new JSONObject();
-      error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
-      error.put(ErrorKeys.TITLE, "Missing Authenticatio");
-      error.put(ErrorKeys.CODE, ErrorCodes.MISSING_AUTHENTICATION);
-      error.put(ErrorKeys.MESSAGE, "Authentication parameters have not been provided");
-      error.put(ErrorKeys.SUGGESTION,
-          "Provide authentication parameters or check the 'Authentication' header: it must be of type 'basic'");
-      out.write(error.toString());
+      resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
+      out.write(ErrorHandler.getError(ErrorCodes.MISSING_AUTHENTICATION).toString());
       return;
     }
 
     // Se l'utente non sta tentando di registrarsi, controlla le credenziali
     if (!pathTokens.get(0).equals(FirstLevelValues.USERS)) {
       if (!this.dbManager.testCredentials(user)) {
-        error = new JSONObject();
-        error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
-        error.put(ErrorKeys.TITLE, "Failed Authenticatio");
-        error.put(ErrorKeys.CODE, ErrorCodes.FAILED_AUTHENTICATION);
-        error.put(ErrorKeys.MESSAGE, "The authentication process has failed");
-        error.put(ErrorKeys.SUGGESTION, "Try checking the authentication parameters provided");
-        out.write(error.toString());
+        resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
+        out.write(ErrorHandler.getError(ErrorCodes.FAILED_AUTHENTICATION).toString());
         return;
       }
     } else {
@@ -277,39 +203,20 @@ public class ContactServlet extends HttpServlet {
         Contact contact = jsonParser.getRegistrationCredentials();
         if (contact == null) {
           resp.setStatus((HttpServletResponse.SC_BAD_REQUEST));
-          error = new JSONObject();
-          error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
-          error.put(ErrorKeys.TITLE, "Error while interpreting the message");
-          error.put(ErrorKeys.CODE, ErrorCodes.WRONG_SYNTAX);
-          error.put(ErrorKeys.MESSAGE,
-              "An error has occured while trying to pull out needed information about the contact from the text");
-          error.put(ErrorKeys.SUGGESTION, "Try checking the syntax");
-          out.write(error.toString());
+          out.write(ErrorHandler.getError(ErrorCodes.WRONG_SYNTAX).toString());
         } else {
           int id = this.dbManager.registerUser(contact);
           switch (id) {
             // Errore durante la registrazione
             case -1:
               resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-              error = new JSONObject();
-              error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
-              error.put(ErrorKeys.TITLE, "Error during registration");
-              error.put(ErrorKeys.CODE, ErrorCodes.REGISTRATION_FAILURE);
-              error.put(ErrorKeys.MESSAGE, "An error during registration has occured");
-              error.put(ErrorKeys.SUGGESTION, "Retry later");
-              out.write(error.toString());
+              out.write(ErrorHandler.getError(ErrorCodes.REGISTRATION_FAILURE).toString());
               break;
 
             // L'utente esiste già
             case 0:
               resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-              error = new JSONObject();
-              error.put(ErrorKeys.TYPE, ErrorTypes.WARNING);
-              error.put(ErrorKeys.TITLE, "Error during registration");
-              error.put(ErrorKeys.CODE, ErrorCodes.DUPLICATED_USER);
-              error.put(ErrorKeys.MESSAGE, "A user with the same email has been detected");
-              error.put(ErrorKeys.SUGGESTION, "Try logging in with the same credentials used to register");
-              out.write(error.toString());
+              out.write(ErrorHandler.getError(ErrorCodes.DUPLICATED_USER).toString());
               break;
 
             // Registrazione riuscita
@@ -322,10 +229,6 @@ public class ContactServlet extends HttpServlet {
                 resp.setHeader("Location", req.getRequestURL().toString() + id);
               } else {
                 resp.setStatus(HttpServletResponse.SC_CONFLICT);
-                error = new JSONObject();
-                error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
-                error.put(ErrorKeys.CODE, ErrorCodes.INSERTION_FAILURE);
-
                 JSONObject notInserted = new JSONObject();
                 if (notInsertedPhoneNumbers.size() > 0) {
                   notInserted.put("phoneNumbers", new JSONArray(notInsertedPhoneNumbers));
@@ -333,11 +236,7 @@ public class ContactServlet extends HttpServlet {
                 if (notInsertedEmails.size() > 0) {
                   notInserted.put("emails", new JSONArray(notInsertedEmails));
                 }
-                error.put(ErrorKeys.DATA, notInserted);
-                error.put(ErrorKeys.TITLE, "Insertion failure");
-                error.put(ErrorKeys.MESSAGE, "Some phone numbers and/or email have not been inserted");
-                error.put(ErrorKeys.SUGGESTION, "Try checking the values and retry");
-                out.write(error.toString());
+                out.write((ErrorHandler.getError(ErrorCodes.INSERTION_FAILURE).put(ErrorKeys.DATA, notInserted)).toString());
               }
               break;
           }
@@ -362,19 +261,11 @@ public class ContactServlet extends HttpServlet {
               ArrayList<PhoneNumber> notInsertedPhoneNumbers = this.dbManager.insertPhoneNumbers(phoneNumbers, id);
               if (notInsertedPhoneNumbers.size() > 0) {
                 resp.setStatus(HttpServletResponse.SC_CONFLICT);
-                error = new JSONObject();
-                error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
-                error.put(ErrorKeys.CODE, ErrorCodes.INSERTION_FAILURE);
-
                 JSONObject notInserted = new JSONObject();
                 if (notInsertedPhoneNumbers.size() > 0) {
                   notInserted.put("phoneNumbers", new JSONArray(notInsertedPhoneNumbers));
                 }
-                error.put(ErrorKeys.DATA, notInserted);
-                error.put(ErrorKeys.TITLE, "Insertion failure");
-                error.put(ErrorKeys.MESSAGE, "Some emails have not been inserted");
-                error.put(ErrorKeys.SUGGESTION, "Try checking the values and retry");
-                out.write(error.toString());
+                out.write((ErrorHandler.getError(ErrorCodes.INSERTION_FAILURE).put(ErrorKeys.DATA, notInserted)).toString());
               } else {
                 resp.setStatus(HttpServletResponse.SC_CREATED);
                 resp.setHeader("Location", req.getRequestURL().toString());
@@ -387,19 +278,11 @@ public class ContactServlet extends HttpServlet {
               ArrayList<Email> notInsertedEmails = this.dbManager.insertEmails(emails, id);
               if (notInsertedEmails.size() > 0) {
                 resp.setStatus(HttpServletResponse.SC_CONFLICT);
-                error = new JSONObject();
-                error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
-                error.put(ErrorKeys.CODE, ErrorCodes.INSERTION_FAILURE);
-
                 JSONObject notInserted = new JSONObject();
                 if (notInsertedEmails.size() > 0) {
                   notInserted.put("emails", new JSONArray(notInsertedEmails));
                 }
-                error.put(ErrorKeys.DATA, notInserted);
-                error.put(ErrorKeys.TITLE, "Insertion failure");
-                error.put(ErrorKeys.MESSAGE, "Some phone numbers have not been inserted");
-                error.put(ErrorKeys.SUGGESTION, "Try checking the values and retry");
-                out.write(error.toString());
+                out.write((ErrorHandler.getError(ErrorCodes.INSERTION_FAILURE).put(ErrorKeys.DATA, notInserted)).toString());
               } else {
                 resp.setStatus(HttpServletResponse.SC_CREATED);
                 resp.setHeader("Location", req.getRequestURL().toString());
@@ -408,78 +291,36 @@ public class ContactServlet extends HttpServlet {
 
             case SecondLevelValues.NOT_PROVIDED:
               resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-              error = new JSONObject();
-              error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
-              error.put(ErrorKeys.TITLE, "Error while interpreting the URL");
-              error.put(ErrorKeys.CODE, ErrorCodes.MISSING_URL_COMPONENT);
-              error.put(ErrorKeys.MESSAGE, "The URL is incomplete");
-              error.put(ErrorKeys.SUGGESTION, "Try specifying a second level component in the URL");
-              out.write(error.toString());
+              out.write(ErrorHandler.getError(ErrorCodes.MISSING_URL_COMPONENT).toString());
               break;
 
             default:
               resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-              error = new JSONObject();
-              error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
-              error.put(ErrorKeys.TITLE, "Error while interpreting the URL");
-              error.put(ErrorKeys.CODE, ErrorCodes.WRONG_URL_COMPONENT);
-              error.put(ErrorKeys.MESSAGE, "The URL is incorrect");
-              error.put(ErrorKeys.SUGGESTION, "Try specifying a valid second level component in the URL");
-              out.write(error.toString());
+              out.write(ErrorHandler.getError(ErrorCodes.WRONG_URL_COMPONENT).toString());
               break;
           }
         } catch (NumberFormatException ex) {
           resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-          error = new JSONObject();
-          error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
-          error.put(ErrorKeys.TITLE, "Error while interpreting the URL");
-          error.put(ErrorKeys.CODE, ErrorCodes.WRONG_OBJECT_ID);
-          error.put(ErrorKeys.MESSAGE, "The object id is incorrect");
-          error.put(ErrorKeys.SUGGESTION, "Try checking the object id  in the URL");
-          out.write(error.toString());
+          out.write(ErrorHandler.getError(ErrorCodes.WRONG_OBJECT_ID).toString());
         } catch (IndexOutOfBoundsException ex) {
           Contact contact2 = jsonParser.getContact();
           if (contact2 == null) {
             resp.setStatus((HttpServletResponse.SC_BAD_REQUEST));
-            error = new JSONObject();
-            error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
-            error.put(ErrorKeys.TITLE, "Error while interpreting the message");
-            error.put(ErrorKeys.CODE, ErrorCodes.WRONG_SYNTAX);
-            error.put(ErrorKeys.MESSAGE,
-                "An error has occured while trying to pull out needed information about the contact from the text");
-            error.put(ErrorKeys.SUGGESTION, "Try checking the syntax");
-            out.write(error.toString());
+            out.write(ErrorHandler.getError(ErrorCodes.WRONG_SYNTAX).toString());
           } else {
             if (contact2.getOwner().equals(user)
                 && (contact2.getAssociatedUser() == null || contact2.getAssociatedUser().equals(user))) {
               int id = this.dbManager.insertContact(contact2);
               if (id == -1) {
                 resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                error = new JSONObject();
-                error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
-                error.put(ErrorKeys.TITLE, "Error during insertion");
-                error.put(ErrorKeys.CODE, ErrorCodes.INSERTION_FAILURE);
-                error.put(ErrorKeys.MESSAGE, "An error during contact insertion has occured");
-                error.put(ErrorKeys.SUGGESTION, "Retry later");
-                out.write(error.toString());
+                out.write((ErrorHandler.getError(ErrorCodes.INSERTION_FAILURE).put(ErrorKeys.DATA, contact2.toJSON())).toString());
               } else {
                 resp.setStatus(HttpServletResponse.SC_CREATED);
                 resp.setHeader("Location", req.getRequestURL().toString() + id);
               }
             } else {
-              // Le credenziali con le quali si è autenticato l'utente devono
-              // essere le stesse presenti nel campo 'owner' o, se specificato,
-              // nel campo 'associateUser'
-              resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-              error = new JSONObject();
-              error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
-              error.put(ErrorKeys.TITLE, "Failed Authentication");
-              error.put(ErrorKeys.CODE, ErrorCodes.CREDENTIALS_MISMATCH);
-              error.put(ErrorKeys.MESSAGE,
-                  "The credentials of the user are different from the credentials of the owner user of the contact and/or from the credentials of the associated user");
-              error.put(ErrorKeys.SUGGESTION,
-                  "Try checking the authentication parameters provided or the owner and/or associated user sent");
-              out.write(error.toString());
+              resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
+              out.write(ErrorHandler.getError(ErrorCodes.CREDENTIALS_MISMATCH).toString());
             }
           }
         }
@@ -503,19 +344,11 @@ public class ContactServlet extends HttpServlet {
               ArrayList<Contact> notInsertedContacts = this.dbManager.insertContactsInGroup(contacts, id);
               if (notInsertedContacts.size() > 0) {
                 resp.setStatus(HttpServletResponse.SC_CONFLICT);
-                error = new JSONObject();
-                error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
-                error.put(ErrorKeys.CODE, ErrorCodes.INSERTION_FAILURE);
-
                 JSONObject notInserted = new JSONObject();
                 if (notInsertedContacts.size() > 0) {
                   notInserted.put("contacts", new JSONArray(notInsertedContacts));
                 }
-                error.put(ErrorKeys.DATA, notInserted);
-                error.put(ErrorKeys.TITLE, "Insertion failure");
-                error.put(ErrorKeys.MESSAGE, "Some contacts have not been inserted");
-                error.put(ErrorKeys.SUGGESTION, "Try checking the values and retry");
-                out.write(error.toString());
+                out.write((ErrorHandler.getError(ErrorCodes.INSERTION_FAILURE).put(ErrorKeys.DATA, notInserted)).toString());
               } else {
                 resp.setStatus(HttpServletResponse.SC_CREATED);
                 resp.setHeader("Location", req.getRequestURL().toString());
@@ -524,59 +357,28 @@ public class ContactServlet extends HttpServlet {
           
             case SecondLevelValues.NOT_PROVIDED:
               resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-              error = new JSONObject();
-              error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
-              error.put(ErrorKeys.TITLE, "Error while interpreting the URL");
-              error.put(ErrorKeys.CODE, ErrorCodes.MISSING_URL_COMPONENT);
-              error.put(ErrorKeys.MESSAGE, "The URL is incomplete");
-              error.put(ErrorKeys.SUGGESTION, "Try specifying a second level component in the URL");
-              out.write(error.toString());
+              out.write(ErrorHandler.getError(ErrorCodes.MISSING_URL_COMPONENT).toString());
               break;
 
             default:
               resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-              error = new JSONObject();
-              error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
-              error.put(ErrorKeys.TITLE, "Error while interpreting the URL");
-              error.put(ErrorKeys.CODE, ErrorCodes.WRONG_URL_COMPONENT);
-              error.put(ErrorKeys.MESSAGE, "The URL is incorrect");
-              error.put(ErrorKeys.SUGGESTION, "Try specifying a valid second level component in the URL");
-              out.write(error.toString());
+              out.write(ErrorHandler.getError(ErrorCodes.WRONG_URL_COMPONENT).toString());
               break;
           }
         }catch (NumberFormatException ex) {
           resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-          error = new JSONObject();
-          error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
-          error.put(ErrorKeys.TITLE, "Error while interpreting the URL");
-          error.put(ErrorKeys.CODE, ErrorCodes.WRONG_OBJECT_ID);
-          error.put(ErrorKeys.MESSAGE, "The object id is incorrect");
-          error.put(ErrorKeys.SUGGESTION, "Try checking the object id  in the URL");
-          out.write(error.toString());
+          out.write(ErrorHandler.getError(ErrorCodes.WRONG_OBJECT_ID).toString());
         } catch (IndexOutOfBoundsException ex) {
           Group group = jsonParser.getGroup();
           if (group == null) {
             resp.setStatus((HttpServletResponse.SC_BAD_REQUEST));
-            error = new JSONObject();
-            error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
-            error.put(ErrorKeys.TITLE, "Error while interpreting the message");
-            error.put(ErrorKeys.CODE, ErrorCodes.WRONG_SYNTAX);
-            error.put(ErrorKeys.MESSAGE,
-                "An error has occured while trying to pull out needed information about the group from the text");
-            error.put(ErrorKeys.SUGGESTION, "Try checking the syntax");
-            out.write(error.toString());
+            out.write(ErrorHandler.getError(ErrorCodes.WRONG_SYNTAX).toString());
           } else {
             if (group.getOwner().equals(user)) {
               int id = this.dbManager.insertGroup(group);
               if (id == -1) {
                 resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                error = new JSONObject();
-                error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
-                error.put(ErrorKeys.TITLE, "Error during insertion");
-                error.put(ErrorKeys.CODE, ErrorCodes.INSERTION_FAILURE);
-                error.put(ErrorKeys.MESSAGE, "An error during group insertion has occured");
-                error.put(ErrorKeys.SUGGESTION, "Retry later");
-                out.write(error.toString());
+                out.write((ErrorHandler.getError(ErrorCodes.INSERTION_FAILURE).put(ErrorKeys.DATA, group.toJSON())).toString());
               } else {
                 ArrayList<Contact> notInsertedContacts = this.dbManager.insertContactsInGroup(group.getContacts(), id);
                 if (notInsertedContacts.size() == 0) {
@@ -584,32 +386,14 @@ public class ContactServlet extends HttpServlet {
                   resp.setHeader("Location", req.getRequestURL().toString() + id);
                 } else {
                   resp.setStatus(HttpServletResponse.SC_CONFLICT);
-                  error = new JSONObject();
-                  error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
-                  error.put(ErrorKeys.CODE, ErrorCodes.INSERTION_FAILURE);
-
                   JSONObject notInserted = new JSONObject();
                   notInserted.put("contacts", new JSONArray(notInsertedContacts));
-                  error.put(ErrorKeys.DATA, notInserted);
-                  error.put(ErrorKeys.TITLE, "Insertion failure");
-                  error.put(ErrorKeys.MESSAGE, "Some contacts have not been inserted");
-                  error.put(ErrorKeys.SUGGESTION, "Try checking the values and retry");
-                  out.write(error.toString());
+                  out.write((ErrorHandler.getError(ErrorCodes.INSERTION_FAILURE).put(ErrorKeys.DATA, notInserted)).toString());
                 }
               }
             } else {
-              // Le credenziali con le quali si è autenticato l'utente devono
-              // essere le stesse presenti nel campo 'owner'
-              resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-              error = new JSONObject();
-              error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
-              error.put(ErrorKeys.TITLE, "Failed Authentication");
-              error.put(ErrorKeys.CODE, ErrorCodes.CREDENTIALS_MISMATCH);
-              error.put(ErrorKeys.MESSAGE,
-                  "The credentials of the user are different from the credentials of the owner user of the group");
-              error.put(ErrorKeys.SUGGESTION,
-                  "Try checking the authentication parameters provided or the owner user sent");
-              out.write(error.toString());
+              resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
+              out.write(ErrorHandler.getError(ErrorCodes.CREDENTIALS_MISMATCH).toString());
             }
           }
         }
@@ -620,41 +404,20 @@ public class ContactServlet extends HttpServlet {
         Call call = jsonParser.getCall();
         if (call == null) {
           resp.setStatus((HttpServletResponse.SC_BAD_REQUEST));
-          error = new JSONObject();
-          error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
-          error.put(ErrorKeys.TITLE, "Error while interpreting the message");
-          error.put(ErrorKeys.CODE, ErrorCodes.WRONG_SYNTAX);
-          error.put(ErrorKeys.MESSAGE,
-              "An error has occured while trying to pull out needed information about the call from the text");
-          error.put(ErrorKeys.SUGGESTION, "Try checking the syntax");
-          out.write(error.toString());
+          out.write(ErrorHandler.getError(ErrorCodes.WRONG_SYNTAX).toString());
         } else {
           if (call.getCaller().getAssociatedUser().equals(user)) {
             int id = this.dbManager.insertCall(call);
             if (id == -1) {
               resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-              error = new JSONObject();
-              error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
-              error.put(ErrorKeys.TITLE, "Error during insertion");
-              error.put(ErrorKeys.CODE, ErrorCodes.INSERTION_FAILURE);
-              error.put(ErrorKeys.MESSAGE, "An error during call insertion has occured");
-              error.put(ErrorKeys.SUGGESTION, "Retry later or check the syntax");
-              out.write(error.toString());
+              out.write((ErrorHandler.getError(ErrorCodes.INSERTION_FAILURE).put(ErrorKeys.DATA, call.toJSON())).toString());
             } else {
               resp.setStatus(HttpServletResponse.SC_CREATED);
               resp.setHeader("Location", req.getRequestURL().toString() + id);
             }
           } else {
-            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            error = new JSONObject();
-            error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
-            error.put(ErrorKeys.TITLE, "Failed Authentication");
-            error.put(ErrorKeys.CODE, ErrorCodes.CREDENTIALS_MISMATCH);
-            error.put(ErrorKeys.MESSAGE,
-                "The credentials of the user are different from the credentials of the associated user of the caller");
-            error.put(ErrorKeys.SUGGESTION,
-                "Try checking the authentication parameters provided or the owner user sent");
-            out.write(error.toString());
+            resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            out.write(ErrorHandler.getError(ErrorCodes.CREDENTIALS_MISMATCH).toString());
           }
         }
         break;
@@ -662,25 +425,13 @@ public class ContactServlet extends HttpServlet {
       // Non è stato specificato nessun componente di primo livello nell'URL
       case FirstLevelValues.NOT_PROVIDED:
         resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-        error = new JSONObject();
-        error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
-        error.put(ErrorKeys.TITLE, "Error while interpreting the URL");
-        error.put(ErrorKeys.CODE, ErrorCodes.MISSING_URL_COMPONENT);
-        error.put(ErrorKeys.MESSAGE, "The URL is the endpoint");
-        error.put(ErrorKeys.SUGGESTION, "Try specifying a component in the URL");
-        out.write(error.toString());
+        out.write(ErrorHandler.getError(ErrorCodes.MISSING_URL_COMPONENT).toString());
         break;
 
       // Il componente di primo livello specificato è sbagliato
       default:
         resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-        error = new JSONObject();
-        error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
-        error.put(ErrorKeys.TITLE, "Error while interpreting the URL");
-        error.put(ErrorKeys.CODE, ErrorCodes.WRONG_URL_COMPONENT);
-        error.put(ErrorKeys.MESSAGE, "The URL is incorrect");
-        error.put(ErrorKeys.SUGGESTION, "Try specifying a valid first level component in the URL");
-        out.write(error.toString());
+        out.write(ErrorHandler.getError(ErrorCodes.WRONG_URL_COMPONENT).toString());
         break;
     }
 
