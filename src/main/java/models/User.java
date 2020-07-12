@@ -56,6 +56,10 @@ public class User {
      * @return true se rappresentano lo stesso utente, altrimenti false
      */
     public boolean equals(User u1) {
+        if (u1 == null) {
+            return false;
+        }
+        
         return u1.email.equals(this.email) && u1.password.equals(this.password);        
     }
 

@@ -88,7 +88,7 @@ public class PhoneNumber {
      * @return id
      */
     public int getId() {
-        return id;
+        return this.id;
     }
 
     /**
@@ -98,7 +98,7 @@ public class PhoneNumber {
      * @return codice nazione
      */
     public String getCountryCode() {
-        return countryCode;
+        return this.countryCode;
     }
 
     /**
@@ -108,7 +108,7 @@ public class PhoneNumber {
      * @return codice di area
      */
     public String getAreaCode() {
-        return areaCode;
+        return this.areaCode;
     }
 
     /**
@@ -117,7 +117,7 @@ public class PhoneNumber {
      * @return prefisso
      */
     public String getPrefix() {
-        return prefix;
+        return this.prefix;
     }
 
     /**
@@ -127,7 +127,7 @@ public class PhoneNumber {
      * @return phone line
      */
     public String getPhoneLine() {
-        return phoneLine;
+        return this.phoneLine;
     }
 
     /**
@@ -136,7 +136,7 @@ public class PhoneNumber {
      * @return descrizione
      */
     public String getDescription() {
-        return description;
+        return this.description;
     }
 
     /**
@@ -148,6 +148,10 @@ public class PhoneNumber {
      * @return true se rappresentano numeri uguali, altrimenti false
      */
     public boolean equals(PhoneNumber p1) {
+        if (p1 == null) {
+            return false;
+        }
+        
         return p1.toString().equals(this.toString());
     }
 

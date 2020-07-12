@@ -7,8 +7,10 @@ package utils.keys;
  */
 public interface CallKeys {
     public final String ID = "id";
-    public final String CALLER = "caller";
-    public final String CALLED = "called";
+    public final String CALLER_NUMBER = "callerNumber";
+    public final String CALLER_CONTACT = "callerContact";
+    public final String CALLED_NUMBER = "calledNumber";
+    public final String CALLED_CONTACT = "calledContact";
     public final String TIMESTAMP = "timestamp";
     public final String DURATION = "duration";
 }

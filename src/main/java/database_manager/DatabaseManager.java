@@ -256,11 +256,18 @@ public class DatabaseManager {
     public int insertCall(Call call) {
         try {
             PreparedStatement query = this.connection
-                .prepareStatement("SELECT insert_call(?, ?, ?, ?)");
-            query.setInt(1, call.getCaller().getId());
-            query.setInt(2, call.getCalled().getId());
-            query.setTimestamp(3, call.getTimestamp());
-            query.setLong(4, call.getDuration());
+                .prepareStatement("SELECT insert_call(?, ?, ?, ?, ?, ?)");
+            query.setInt(1, call.getCallerNumber().getId());
+            query.setInt(2, call.getCallerContact().getId());
+            query.setInt(3, call.getCalledNumber().getId());
+            Contact called = call.getCalledContact();
+            if (called == null) {
+                query.setNull(4, Types.INTEGER);
+            } else {
+                query.setInt(4, called.getId());
+            }
+            query.setTimestamp(5, call.getTimestamp());
+            query.setLong(6, call.getDuration());
             ResultSet result = query.executeQuery();
             result.first();
             return result.getInt(1);
@@ -369,6 +376,38 @@ public class DatabaseManager {
     }
 
     /**
+     * Estrae il numero di telefono specificato.
+     * 
+     * @param id id del numero di telefono da estrarre
+     * 
+     * @return numero di telefono estratto
+     */
+    public PhoneNumber getPhoneNumber(int id) {
+        PhoneNumber phoneNumber = null;
+        try {
+            PreparedStatement query = this.connection
+                .prepareStatement(
+                    "SELECT * FROM phone_numbers WHERE id = ?"
+                );
+            query.setInt(1, id);
+            ResultSet result = query.executeQuery();
+            if(result.first()) {
+                phoneNumber = new PhoneNumber(
+                    result.getInt(PhoneNumbersLabels.ID),
+                    result.getString(PhoneNumbersLabels.COUNTRY_CODE),
+                    result.getString(PhoneNumbersLabels.AREA_CODE),
+                    result.getString(PhoneNumbersLabels.PREFIX),
+                    result.getString(PhoneNumbersLabels.PHONE_LINE),
+                    result.getString(PhoneNumbersLabels.DESCRIPTION)
+                );
+            }
+        } catch (SQLException ex) {
+            System.err.println(ex.getMessage());
+        }
+        return phoneNumber;
+    }
+
+    /**
      * Estrae tutti i numeri di telefono di un contatto.
      * 
      * @param id id del contatto per il quale estrarre i
@@ -383,7 +422,7 @@ public class DatabaseManager {
         try {
             PreparedStatement query = this.connection
                 .prepareStatement(
-                    "SELECT * FROM phone_numbers P " +
+                    "SELECT P.* FROM phone_numbers P " +
                         "INNER JOIN contacts_numbers CN " +
                             "ON P.id = CN.phone_id " +
                         "INNER JOIN contacts C " + 
@@ -426,7 +465,7 @@ public class DatabaseManager {
         try {
             PreparedStatement query = this.connection
                 .prepareStatement(
-                    "SELECT * FROM emails E " +
+                    "SELECT E.* FROM emails E " +
                     "INNER JOIN contacts_emails CE " +
                         "ON E.email = CE.email " +
                     "INNER JOIN contacts C " +
@@ -525,7 +564,7 @@ public class DatabaseManager {
         try {
             PreparedStatement query = this.connection
                 .prepareStatement(
-                    "SELECT * FROM contacts C " + 
+                    "SELECT C.* FROM contacts C " + 
                         "INNER JOIN groups_contacts GC " +
                             "ON C.id = GC.contact_id " +
                         "INNER JOIN groups G " +
@@ -554,6 +593,82 @@ public class DatabaseManager {
             System.err.println(ex.getMessage());
         }
         return contacts;
+    }
+
+    /**
+     * Estrae una chiamata fatta o ricevuta da un utente.
+     * 
+     * @param id id della chiamata da estrarre
+     * @param user utente che sta eseguendo la query
+     * 
+     * @return chiamata se è stata trovata, altrimenti null
+     */
+    public Call getCall(int id, User user) {
+        Call call = null;
+        try {
+            PreparedStatement query = this.connection
+                .prepareStatement(
+                    "SELECT CA.* FROM calls CA " +
+                        "INNER JOIN contacts CO " +
+                            "ON CA.caller_contact_id = CO.id OR CA.called_contact_id = CO.id " +
+                    "WHERE CA.id = ? AND CO.associated_user = ?"
+                );
+            query.setInt(1, id);
+            query.setString(2, user.getEmail());
+            ResultSet result = query.executeQuery();
+            if (result.first()) {
+                call = new Call(
+                    result.getInt(CallLabels.ID),
+                    this.getPhoneNumber(result.getInt(CallLabels.CALLER_NUMBER)),
+                    this.getContact(result.getInt(CallLabels.CALLER_CONTACT), user),
+                    this.getPhoneNumber(result.getInt(CallLabels.CALLED_NUMBER)),
+                    this.getContact(result.getInt(CallLabels.CALLED_CONTACT), user),
+                    result.getTimestamp(CallLabels.TIMESTAMP),
+                    result.getLong(CallLabels.DURATION)
+                );
+            }
+        } catch (SQLException ex) {
+            System.err.println(ex.getMessage());
+        }
+        return call;
+    }
+
+    /**
+     * Estrae tutte le chiamate fatte o ricevute da un utente.
+     * 
+     * @param user utente per il quale estrarre le chiamate
+     * 
+     * @return chiamate se sono state trovate, altrimenti un array vuoto
+     */
+    public ArrayList<Call> getCalls(User user) {
+        ArrayList<Call> calls = new ArrayList<>();
+        try {
+            PreparedStatement query = this.connection
+                .prepareStatement(
+                    "SELECT CA.* FROM calls CA " +
+                        "INNER JOIN contacts CO " +
+                            "ON CA.caller_contact_id = CO.id OR CA.called_contact_id = CO.id " +
+                    "WHERE CO.associated_user = ?"
+                );
+            query.setString(1, user.getEmail());
+            ResultSet result = query.executeQuery();
+            if (result.first()) {
+                do {
+                    calls.add(new Call(
+                        result.getInt(CallLabels.ID),
+                        this.getPhoneNumber(result.getInt(CallLabels.CALLER_NUMBER)),
+                        this.getContact(result.getInt(CallLabels.CALLER_CONTACT), user),
+                        this.getPhoneNumber(result.getInt(CallLabels.CALLED_NUMBER)),
+                        this.getContact(result.getInt(CallLabels.CALLED_CONTACT), user),
+                        result.getTimestamp(CallLabels.TIMESTAMP),
+                        result.getLong(CallLabels.DURATION)
+                    ));
+                } while (result.next());
+            }
+        } catch (SQLException ex) {
+            System.err.println(ex.getMessage());
+        }
+        return calls;
     }
 
     /**

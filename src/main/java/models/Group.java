@@ -57,7 +57,7 @@ public class Group {
      * @return id
      */
     public int getId() {
-        return id;
+        return this.id;
     }
 
     /**
@@ -66,7 +66,7 @@ public class Group {
      * @return utente proprietario
      */
     public User getOwner() {
-        return owner;
+        return this.owner;
     }
 
     /**
@@ -75,7 +75,7 @@ public class Group {
      * @return nome del gruppo
      */
     public String getName() {
-        return name;
+        return this.name;
     }
 
     /**
@@ -84,7 +84,7 @@ public class Group {
      * @return contatti del gruppo
      */
     public ArrayList<Contact> getContacts() {
-        return contacts;
+        return this.contacts;
     }
 
     /**
@@ -95,6 +95,10 @@ public class Group {
      * @return true se rappresentano lo stesso gruppo, altrimenti false
      */
     public boolean equals(Group g1) {
+        if (g1 == null) {
+            return false;
+        }
+        
         return g1.id == this.id && g1.name.equals(this.name) &&
             g1.owner.equals(this.owner) && g1.contacts.equals(this.contacts);
     }

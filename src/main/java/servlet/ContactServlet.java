@@ -126,6 +126,31 @@ public class ContactServlet extends HttpServlet {
           out.write(ErrorHandler.getError(ErrorCodes.WRONG_OBJECT_ID).toString());
         }
         break;
+
+      case FirstLevelValues.CALLS:
+        try {
+          int id = Integer.parseInt(pathTokens.get(1));
+          Call call = this.dbManager.getCall(id, user);
+          if (call == null) {
+            resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+          } else {
+            resp.setStatus(HttpServletResponse.SC_OK);
+            out.write(call.toJSON().toString());
+          }
+        } catch (IndexOutOfBoundsException ex) {
+          ArrayList<Call> calls = this.dbManager.getCalls(user);
+          if (calls.size() == 0) {
+            resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+          } else {
+            resp.setStatus(HttpServletResponse.SC_OK);
+            JSONArray JSONCalls = new JSONArray(calls);
+            out.write(JSONCalls.toString());
+          }
+        } catch (NumberFormatException ex) {
+          resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+          out.write(ErrorHandler.getError(ErrorCodes.WRONG_OBJECT_ID).toString());
+        }
+        break;
       
       case FirstLevelValues.NOT_PROVIDED:
         resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -183,17 +208,17 @@ public class ContactServlet extends HttpServlet {
     }
 
     // Se l'utente non sta tentando di registrarsi, controlla le credenziali
-    if (!pathTokens.get(0).equals(FirstLevelValues.USERS)) {
+    if (!pathTokens.get(0).equals(FirstLevelValues.USERS) || jsonParser.isJustLogin()) {
       if (!this.dbManager.testCredentials(user)) {
         resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
         out.write(ErrorHandler.getError(ErrorCodes.FAILED_AUTHENTICATION).toString());
         return;
-      }
-    } else {
-      // Può essere che l'utente voglia soltanto testare le sue credenziali
-      if (jsonParser.isJustLogin()) {
-        resp.setStatus(HttpServletResponse.SC_OK);
-        return;
+      } else {
+        // Può essere che l'utente voglia soltanto testare le sue credenziali
+        if (jsonParser.isJustLogin()) {
+          resp.setStatus(HttpServletResponse.SC_OK);
+          return;
+        }
       }
     }
 
@@ -406,7 +431,7 @@ public class ContactServlet extends HttpServlet {
           resp.setStatus((HttpServletResponse.SC_BAD_REQUEST));
           out.write(ErrorHandler.getError(ErrorCodes.WRONG_SYNTAX).toString());
         } else {
-          if (call.getCaller().getAssociatedUser().equals(user)) {
+          if (user.equals(call.getCallerContact().getAssociatedUser())) {
             int id = this.dbManager.insertCall(call);
             if (id == -1) {
               resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);

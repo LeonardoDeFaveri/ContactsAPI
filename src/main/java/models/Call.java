@@ -12,20 +12,29 @@ import utils.keys.CallKeys;
  */
 public class Call {
     private int id;
-    private Contact caller;
-    private Contact called;
+    private PhoneNumber callerNumber;
+    private Contact callerContact;
+    private PhoneNumber calledNumber;
+    private Contact calledContact;
     private Timestamp timestamp;
     private long duration;
 
-    public Call(int id, Contact caller, Contact called, Timestamp timestamp, long duration) {
-        this.caller = caller;
-        this.called = called;
+    public Call(int id, PhoneNumber callerNumber, Contact callerContact, PhoneNumber calledNumber,
+            Contact calledContact, Timestamp timestamp, long duration) {
+        this.id = id;
+        this.callerNumber = callerNumber;
+        this.callerContact = callerContact;
+        this.calledNumber = calledNumber;
+        this.calledContact = calledContact;
         this.timestamp = timestamp;
         this.duration = duration;
     }
 
-    public Call(Contact caller, Contact called, Timestamp timestamp) {
-        this(-1, caller, called, timestamp, 0);
+    public Call(PhoneNumber callerNumber, Contact callerContact, PhoneNumber calledNumber, Timestamp timestamp) {
+        this.callerNumber = callerNumber;
+        this.callerContact = callerContact;
+        this.calledNumber = calledNumber;
+        this.timestamp = timestamp;
     }
 
     /**
@@ -38,8 +47,10 @@ public class Call {
      */
     public Call(JSONObject JSONCall) throws JSONException{
         this.id = JSONCall.optInt(CallKeys.ID, -1);
-        this.caller = new Contact(JSONCall.getJSONObject(CallKeys.CALLER));
-        this.called = new Contact(JSONCall.getJSONObject(CallKeys.CALLED));
+        this.callerNumber = new PhoneNumber(JSONCall.getJSONObject(CallKeys.CALLER_NUMBER));
+        this.callerContact = new Contact(JSONCall.getJSONObject(CallKeys.CALLER_CONTACT));
+        this.calledNumber = new PhoneNumber(JSONCall.getJSONObject(CallKeys.CALLED_NUMBER));
+        this.calledContact = new Contact(JSONCall.getJSONObject(CallKeys.CALLED_CONTACT));
         this.timestamp = new Timestamp(JSONCall.getLong(CallKeys.TIMESTAMP));
         this.duration = JSONCall.optLong(CallKeys.DURATION);
     }
@@ -54,13 +65,33 @@ public class Call {
     }
 
     /**
+     * Restituisce il numero di telefono che 
+     * ha effettuato la chiamata.
+     * 
+     * @return numero chiamante
+     */
+    public PhoneNumber getCallerNumber() {
+        return this.callerNumber;
+    }
+
+    /**
      * Restituisce il contatto che ha effettuato la
      * chiamata.
      * 
      * @return contatto chiamante
      */
-    public Contact getCaller() {
-        return caller;
+    public Contact getCallerContact() {
+        return this.callerContact;
+    }
+
+    /**
+     * Restituisce il numero di telefono che 
+     * ha effettuato la chiamata.
+     * 
+     * @return numero chiamante
+     */
+    public PhoneNumber getCalledNumber() {
+        return this.calledNumber;
     }
 
     /**
@@ -68,8 +99,8 @@ public class Call {
      * 
      * @return contatto chiamato
      */
-    public Contact getCalled() {
-        return called;
+    public Contact getCalledContact() {
+        return this.calledContact;
     }
 
     /**
@@ -78,7 +109,7 @@ public class Call {
      * @return data e ora della chiamata
      */
     public Timestamp getTimestamp() {
-        return timestamp;
+        return this.timestamp;
     }
 
     /**
@@ -89,7 +120,7 @@ public class Call {
      * @return durata in secondi della chiamata
      */
     public long getDuration() {
-        return duration;
+        return this.duration;
     }
 
     /**

@@ -87,7 +87,7 @@ public class Contact {
      * @return id
      */
     public int getId() {
-        return id;
+        return this.id;
     }
 
     /**
@@ -96,7 +96,7 @@ public class Contact {
      * @return primo nome
      */
     public String getFirstName() {
-        return firstName;
+        return this.firstName;
     }
 
     /**
@@ -105,7 +105,7 @@ public class Contact {
      * @return cognome
      */
     public String getFamilyName() {
-        return familyName;
+        return this.familyName;
     }
 
     /**
@@ -114,7 +114,7 @@ public class Contact {
      * @return secondo nome
      */
     public String getSecondName() {
-        return secondName;
+        return this.secondName;
     }
 
     /**
@@ -123,7 +123,7 @@ public class Contact {
      * @return utente proprietario
      */
     public User getOwner() {
-        return owner;
+        return this.owner;
     }
 
     /**
@@ -133,7 +133,7 @@ public class Contact {
      * @return utente associato
      */
     public User getAssociatedUser() {
-        return associatedUser;
+        return this.associatedUser;
     }
 
     /**
@@ -162,6 +162,10 @@ public class Contact {
      * @return true se rappresentano lo stesso contatto, altrimenti false
      */
     public boolean equals(Contact c1) {
+        if (c1 == null) {
+            return false;
+        }
+        
         return c1.id == this.id && c1.firstName.equals(this.firstName) && 
             c1.familyName.equals(this.familyName) && c1.secondName.equals(this.secondName) &&
             c1.owner.equals(this.owner) && c1.associatedUser.equals(this.associatedUser) &&

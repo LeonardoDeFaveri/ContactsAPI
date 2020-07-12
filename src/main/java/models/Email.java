@@ -38,7 +38,7 @@ public class Email {
      * @return indirizzo email
      */
     public String getEmail() {
-        return email;
+        return this.email;
     }
 
     /**
@@ -47,7 +47,7 @@ public class Email {
      * @return descrizione
      */
     public String getDescription() {
-        return description;
+        return this.description;
     }
 
     /**
@@ -58,6 +58,10 @@ public class Email {
      * @return true se rappresentano la stessa email, altrimenti false
      */
     public boolean equals(Email e1) {
+        if (e1 == null) {
+            return false;
+        }
+
         return e1.email.equals(this.email) && e1.description.equals(this.description);
     }
 
