@@ -532,9 +532,17 @@ public class ContactServlet extends HttpServlet {
         }
         break;
 
+      /**
+       * Modifica di un contatto e di tutte le sue proprietà
+       * ad eccezione di 'owner', 'associated user' e 'id'.
+       */
       case FirstLevelValues.CONTACTS:
         break;
 
+      /**
+       * Modifica di un gruppo e di tutte le sue proprietà
+       * ad eccezione di 'owner' e 'id'.
+       */
       case FirstLevelValues.GROUPS:
         break;
     
