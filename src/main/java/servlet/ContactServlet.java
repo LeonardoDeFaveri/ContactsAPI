@@ -52,12 +52,12 @@ public class ContactServlet extends HttpServlet {
 
     User user = this.getCredentials(req);
     if (user == null && !pathTokens.get(0).equals(FirstLevelValues.USERS)) {
-      resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
+      resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
       out.write(ErrorHandler.getError(ErrorCodes.MISSING_AUTHENTICATION).toString());
       return;
     }
     if (!this.dbManager.testCredentials(user)) {
-      resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
+      resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
       out.write(ErrorHandler.getError(ErrorCodes.FAILED_AUTHENTICATION).toString());
       return;
     }
@@ -202,7 +202,7 @@ public class ContactServlet extends HttpServlet {
     // che l'utente venga autenticato ad ogni richiesta
     User user = this.getCredentials(req);
     if (user == null && !pathTokens.get(0).equals(FirstLevelValues.USERS)) {
-      resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
+      resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
       out.write(ErrorHandler.getError(ErrorCodes.MISSING_AUTHENTICATION).toString());
       return;
     }
@@ -210,7 +210,7 @@ public class ContactServlet extends HttpServlet {
     // Se l'utente non sta tentando di registrarsi, controlla le credenziali
     if (!pathTokens.get(0).equals(FirstLevelValues.USERS) || jsonParser.isJustLogin()) {
       if (!this.dbManager.testCredentials(user)) {
-        resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
+        resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         out.write(ErrorHandler.getError(ErrorCodes.FAILED_AUTHENTICATION).toString());
         return;
       } else {
@@ -344,7 +344,7 @@ public class ContactServlet extends HttpServlet {
                 resp.setHeader("Location", req.getRequestURL().toString() + id);
               }
             } else {
-              resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
+              resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
               out.write(ErrorHandler.getError(ErrorCodes.CREDENTIALS_MISMATCH).toString());
             }
           }
@@ -417,7 +417,7 @@ public class ContactServlet extends HttpServlet {
                 }
               }
             } else {
-              resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
+              resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
               out.write(ErrorHandler.getError(ErrorCodes.CREDENTIALS_MISMATCH).toString());
             }
           }
@@ -441,7 +441,7 @@ public class ContactServlet extends HttpServlet {
               resp.setHeader("Location", req.getRequestURL().toString() + id);
             }
           } else {
-            resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             out.write(ErrorHandler.getError(ErrorCodes.CREDENTIALS_MISMATCH).toString());
           }
         }
@@ -468,6 +468,88 @@ public class ContactServlet extends HttpServlet {
   protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
     PrintWriter out = resp.getWriter();
     resp.setCharacterEncoding("UTF-8");
+
+    String contentType = req.getContentType();
+    if (contentType == null || !contentType.equals("application/json")) {
+      resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+      out.write(ErrorHandler.getError(ErrorCodes.INVALID_CONTENT_TYPE).toString());
+      return;
+    }
+
+    JSONparser jsonParser;
+    try {
+      jsonParser = new JSONparser(req.getReader());
+    } catch (IOException ex) {
+      resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+      out.write(ErrorHandler.getError(ErrorCodes.WRONG_SYNTAX).toString());
+      return;
+    } catch (JSONException ex) {
+      resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+      out.write(ErrorHandler.getError(ErrorCodes.WRONG_SYNTAX).toString());
+      return;
+    }
+
+    PathParser pathParser = new PathParser(req.getPathInfo(), req.getParameterMap());
+    ArrayList<String> pathTokens = pathParser.getPathTokens();
+    if (pathTokens.size() == 0) {
+      pathTokens.add(FirstLevelValues.NOT_PROVIDED);
+    }
+
+    // Dato che le interazioni con i web service sono senza stato, è necessario
+    // che l'utente venga autenticato ad ogni richiesta
+    User user = this.getCredentials(req);
+    if (user == null && !pathTokens.get(0).equals(FirstLevelValues.USERS)) {
+      resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+      out.write(ErrorHandler.getError(ErrorCodes.MISSING_AUTHENTICATION).toString());
+      return;
+    }
+
+    if (!this.dbManager.testCredentials(user)) {
+      resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+      out.write(ErrorHandler.getError(ErrorCodes.FAILED_AUTHENTICATION).toString());
+      return;
+    }
+
+    switch (pathTokens.get(0)) {
+      // Modifica delle credenziali di accesso
+      case FirstLevelValues.USERS:
+        User newUserCredentials = jsonParser.getUser();
+        if (newUserCredentials == null) {
+          resp.setStatus((HttpServletResponse.SC_BAD_REQUEST));
+          out.write(ErrorHandler.getError(ErrorCodes.WRONG_SYNTAX).toString());
+        } else {
+          if (user.equals(newUserCredentials)) {
+            resp.setStatus(HttpServletResponse.SC_CONFLICT);
+            out.write(ErrorHandler.getError(ErrorCodes.DATA_NOT_MODIFIABLE).toString());
+          } else {
+            if (this.dbManager.updateUser(user, newUserCredentials)) {
+              resp.setStatus(HttpServletResponse.SC_OK);
+            } else {
+              resp.setStatus(HttpServletResponse.SC_CONFLICT);
+              out.write(ErrorHandler.getError(ErrorCodes.DATA_NOT_MODIFIED).toString());
+            }
+          }
+        }
+        break;
+
+      case FirstLevelValues.CONTACTS:
+        break;
+
+      case FirstLevelValues.GROUPS:
+        break;
+    
+      // Non è stato specificato nessun componente di primo livello nell'URL
+      case FirstLevelValues.NOT_PROVIDED:
+        resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+        out.write(ErrorHandler.getError(ErrorCodes.MISSING_URL_COMPONENT).toString());
+        break;
+
+      // Il componente di primo livello specificato è sbagliato
+      default:
+        resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+        out.write(ErrorHandler.getError(ErrorCodes.WRONG_URL_COMPONENT).toString());
+        break;
+    }
 
     out.flush();
     out.close();

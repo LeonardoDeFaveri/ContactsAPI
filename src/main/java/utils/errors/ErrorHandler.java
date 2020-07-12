@@ -50,6 +50,14 @@ public class ErrorHandler {
                 error = getWrongObjectId();
                 break;
 
+            case ErrorCodes.DATA_NOT_MODIFIABLE:
+                error = getDataNotModifiableError();
+                break;
+
+            case ErrorCodes.DATA_NOT_MODIFIED:
+                error = getDataNotModifiedError();
+                break;
+
             default:
                 error = new JSONObject();
                 break;
@@ -229,6 +237,38 @@ public class ErrorHandler {
         error.put(ErrorKeys.CODE, ErrorCodes.WRONG_OBJECT_ID);
         error.put(ErrorKeys.MESSAGE, "The object id is incorrect");
         error.put(ErrorKeys.SUGGESTION, "Try checking the object id in the URL");
+        return error;
+    }
+
+    /**
+     * È stata inviata un richiesta di modifica di una risorsa
+     * (metodo PUT), ma la risorsa modificata coincide con la risorsa
+     * originale.
+     * 
+     * @return messaggio di errore
+     */
+    private static JSONObject getDataNotModifiableError() {
+        JSONObject error = new JSONObject();
+        error.put(ErrorKeys.TYPE, ErrorTypes.WARNING);
+        error.put(ErrorKeys.TITLE, "Resource modification not required");
+        error.put(ErrorKeys.CODE, ErrorCodes.DATA_NOT_MODIFIABLE);
+        error.put(ErrorKeys.MESSAGE, "The original resource and the updated one are equal, so none update operation has been performed");
+        error.put(ErrorKeys.SUGGESTION, "Try checking the values of the fields that you want to modify");
+        return error;
+    }
+
+    /**
+     * La modifica di una risorsa non è andata a buon fine.
+     * 
+     * @return messaggio di errore
+     */
+    private static JSONObject getDataNotModifiedError() {
+        JSONObject error = new JSONObject();
+        error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
+        error.put(ErrorKeys.TITLE, "Resource modification failed");
+        error.put(ErrorKeys.CODE, ErrorCodes.DATA_NOT_MODIFIED);
+        error.put(ErrorKeys.MESSAGE, "The modification of one or more resources has failed");
+        error.put(ErrorKeys.SUGGESTION, "Try checking the values of the fields that you want to modify");
         return error;
     }
 }

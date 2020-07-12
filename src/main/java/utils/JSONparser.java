@@ -56,11 +56,27 @@ public class JSONparser {
      * Estrae le credenziali necessarie alla creazione di un nuovo utente e
      * del relativo contatto.
      * 
-     * @return nuovo contatto se è stato trovato, altrimenti null
+     * @return dati del nuovo utente se è stato trovato, altrimenti null
      */
     public Contact getRegistrationCredentials() {
         try {
             return new Contact(this.object.getJSONObject("contact"));
+        } catch (JSONException ex) {
+            return null;
+        }
+    }
+
+    /**
+     * Estrae le credenziali dell'utente. Questo metodo deve
+     * essere usato quando l'utente invia una richiesta PUT 
+     * per la modifica delle credenziali di accesso.
+     * 
+     * @return nuove credenziali dell'utente se sono state
+     *      trovate, altrimenti null
+     */
+    public User getUser() {
+        try {
+            return new User(this.object.getJSONObject("user"));
         } catch (JSONException ex) {
             return null;
         }

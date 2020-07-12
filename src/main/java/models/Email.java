@@ -51,21 +51,6 @@ public class Email {
     }
 
     /**
-     * Controlla che due istanze di Email rappresentino email diverse.
-     * 
-     * @param e1 istanza di Email da confrontare
-     * 
-     * @return true se rappresentano la stessa email, altrimenti false
-     */
-    public boolean equals(Email e1) {
-        if (e1 == null) {
-            return false;
-        }
-
-        return e1.email.equals(this.email) && e1.description.equals(this.description);
-    }
-
-    /**
      * Restituisce una rappresentazione, sotto forma di oggetto JSON,
      * dell'istanza.
      * 
@@ -73,5 +58,19 @@ public class Email {
      */
     public JSONObject toJSON() {
         return new JSONObject(this);
+    }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null || (obj instanceof Email) == false) {
+            return false;
+        } else {
+            Email email = (Email) obj;
+            return this.email.equals(email.email) && 
+                (
+                    (this.description == null && email.description == null) ||
+                    (this.description.equals(email.description))
+                );
+        }
     }
 }

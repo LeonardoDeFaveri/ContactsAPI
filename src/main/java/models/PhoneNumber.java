@@ -140,22 +140,6 @@ public class PhoneNumber {
     }
 
     /**
-     * Controlla che due istanze di PhoneNumber rappresentino
-     * numeri diversi.
-     * 
-     * @param p1 istanza di PhoneNumber da controllare
-     * 
-     * @return true se rappresentano numeri uguali, altrimenti false
-     */
-    public boolean equals(PhoneNumber p1) {
-        if (p1 == null) {
-            return false;
-        }
-        
-        return p1.toString().equals(this.toString());
-    }
-
-    /**
      * Restituisce una rappresentazione del numero di telefono
      * come stringa. Il formato è il seguente: +www xxxyyyzzzz
      */
@@ -172,5 +156,21 @@ public class PhoneNumber {
      */
     public JSONObject toJSON() {
         return new JSONObject(this);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null || (obj instanceof PhoneNumber) == false) {
+            return false;
+        } else {
+            PhoneNumber number = (PhoneNumber) obj;
+            return this.id == number.id && this.countryCode.equals(number.countryCode) &&
+                this.areaCode.equals(number.areaCode) && this.prefix.equals(number.prefix) &&
+                this.phoneLine.equals(number.phoneLine) &&
+                (
+                    (this.description == null && number.description == null) ||
+                    (this.description.equals(number.description))
+                );
+        }
     }
 }

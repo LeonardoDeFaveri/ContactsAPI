@@ -16,4 +16,6 @@ public interface ErrorCodes {
     public final int FAILED_AUTHENTICATION = 9;
     public final int CREDENTIALS_MISMATCH = 10;
     public final int WRONG_OBJECT_ID = 11;
+    public final int DATA_NOT_MODIFIABLE = 12;
+    public final int DATA_NOT_MODIFIED = 13;
 }

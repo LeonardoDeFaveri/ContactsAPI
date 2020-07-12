@@ -132,4 +132,20 @@ public class Call {
     public JSONObject toJSON() {
         return new JSONObject(this);
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null || (obj instanceof Call) == false) {
+            return false;
+        } else {
+            Call call = (Call) obj;
+            return this.id == call.id && this.callerNumber.equals(call.callerNumber) &&
+                this.callerContact.equals(call.callerContact) && 
+                this.calledNumber.equals(call.calledNumber) &&
+                (
+                    (this.calledContact == null && call.calledContact == null) || 
+                    (this.calledContact.equals(call.calledContact))
+                ) && this.timestamp.equals(call.timestamp) && this.duration == call.duration;
+        }
+    }
 }

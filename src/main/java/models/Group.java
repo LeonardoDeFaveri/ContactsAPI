@@ -24,6 +24,10 @@ public class Group {
         this.contacts = contacts;
     }
 
+    public Group(int id, User owner, String name) {
+        this(id, owner, name, new ArrayList<Contact>());
+    }
+
     /**
      * Crea un'istanza a partire da un'oggetto JSON.
      * 
@@ -88,22 +92,6 @@ public class Group {
     }
 
     /**
-     * Controlla che due istanze di Group rappresentino gruppi diversi.
-     * 
-     * @param g1 istanza di Group da confrontare
-     * 
-     * @return true se rappresentano lo stesso gruppo, altrimenti false
-     */
-    public boolean equals(Group g1) {
-        if (g1 == null) {
-            return false;
-        }
-        
-        return g1.id == this.id && g1.name.equals(this.name) &&
-            g1.owner.equals(this.owner) && g1.contacts.equals(this.contacts);
-    }
-
-    /**
      * Restituisce una rappresentazione, sotto forma di oggetto JSON,
      * dell'istanza.
      * 
@@ -111,5 +99,16 @@ public class Group {
      */
     public JSONObject toJSON() {
         return new JSONObject(this);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null || (obj instanceof Group) == false) {
+            return false;
+        } else {
+            Group group = (Group) obj;
+            return this.id == group.id && this.name.equals(group.name) &&
+                this.owner.equals(group.owner) && this.contacts.equals(group.contacts);
+        }
     }
 }

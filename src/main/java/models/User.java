@@ -49,21 +49,6 @@ public class User {
     }
 
     /**
-     * Controlla che due istanze di User rappresentino utenti diversi.
-     * 
-     * @param u1 istanza di User da confrontare
-     * 
-     * @return true se rappresentano lo stesso utente, altrimenti false
-     */
-    public boolean equals(User u1) {
-        if (u1 == null) {
-            return false;
-        }
-        
-        return u1.email.equals(this.email) && u1.password.equals(this.password);        
-    }
-
-    /**
      * Restituisce una rappresentazione, sotto forma di oggetto JSON,
      * dell'istanza.
      * 
@@ -71,5 +56,15 @@ public class User {
      */
     public JSONObject toJSON() {
         return new JSONObject(this);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null || (obj instanceof User) == false) {
+            return false;
+        } else {
+            User user = (User) obj;
+            return this.email.equals(user.email) && this.password.equals(user.password);
+        }
     }
 }

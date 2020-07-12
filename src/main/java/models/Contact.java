@@ -33,6 +33,11 @@ public class Contact {
         this.phoneNumbers = phoneNumbers;
     }
 
+    public Contact(int id, String firstName, String familyName, String secondName, User owner, User associatedUser) {
+        this(id, firstName, familyName, secondName, owner, 
+            associatedUser, new ArrayList<Email>(), new ArrayList<PhoneNumber>());
+    }
+
     /**
      * Crea un'istanza a partire da un'oggetto JSON.
      * 
@@ -155,24 +160,6 @@ public class Contact {
     }
 
     /**
-     * Controlla che due istanze di Contact rappresentino contatti diversi.
-     * 
-     * @param c1 istanza di Contact da confrontare
-     * 
-     * @return true se rappresentano lo stesso contatto, altrimenti false
-     */
-    public boolean equals(Contact c1) {
-        if (c1 == null) {
-            return false;
-        }
-        
-        return c1.id == this.id && c1.firstName.equals(this.firstName) && 
-            c1.familyName.equals(this.familyName) && c1.secondName.equals(this.secondName) &&
-            c1.owner.equals(this.owner) && c1.associatedUser.equals(this.associatedUser) &&
-            c1.emails.equals(this.emails) && c1.phoneNumbers.equals(this.phoneNumbers);
-    }
-
-    /**
      * Restituisce una rappresentazione, sotto forma di oggetto JSON,
      * dell'istanza.
      * 
@@ -180,5 +167,26 @@ public class Contact {
      */
     public JSONObject toJSON() {
         return new JSONObject(this);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null || (obj instanceof Contact) == false) {
+            return false;
+        } else {
+            Contact contact = (Contact) obj;
+            return this.id == contact.id && this.firstName.equals(contact.firstName) &&
+                this.familyName.equals(contact.familyName) &&
+                (
+                    (this.secondName == null && contact.secondName == null) ||
+                    (this.secondName.equals(contact.secondName))
+                ) && this.owner.equals(contact.owner) &&
+                (
+                    (this.associatedUser == null && contact.associatedUser == null) ||
+                    (this.associatedUser.equals(contact.associatedUser))
+                ) &&
+                this.phoneNumbers.equals(contact.phoneNumbers) &&
+                this.emails.equals(contact.emails);
+        }
     }
 }

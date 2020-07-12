@@ -86,196 +86,7 @@ public class DatabaseManager {
         }
     }
 
-    /**
-     * Inserisce un nuovo contatto.
-     * 
-     * @param contact contatto da inserire
-     * 
-     * @return id del contatto se è stato creato con successo
-     *      o se esisteva già, altrimenti -1
-     */
-    public int insertContact(Contact contact) {
-        try {
-            PreparedStatement query = this.connection
-                .prepareStatement("SELECT insert_contact(?, ?, ?, ?, ?)");
-            query.setString(1, contact.getFirstName());
-            query.setString(2, contact.getFamilyName());
-            if (contact.getSecondName().equals("")) {
-                query.setNull(3, Types.VARCHAR);
-            } else {
-                query.setString(3, contact.getSecondName());
-            }
-            query.setString(4, contact.getOwner().getEmail());
-            if (contact.getAssociatedUser() == null) {
-                query.setNull(5, Types.VARCHAR);
-            } else {
-                query.setString(5, contact.getAssociatedUser().getEmail());
-            }
-            ResultSet result = query.executeQuery();
-            result.first();
-            return result.getInt(1);
-        } catch (SQLException ex) {
-            System.err.println(ex.getMessage());
-            return -1;
-        }
-    }
-
-    /**
-     * Inserisce un nuovo gruppo.
-     * 
-     * @param group gruppo da inserire
-     * 
-     * @return id del gruppo se è stato creato con successo
-     *      o se esisteva già, altrimenti -1
-     */
-    public int insertGroup(Group group) {
-        try {
-            PreparedStatement query = this.connection
-                .prepareStatement("SELECT insert_group(?, ?)");
-            query.setString(1, group.getName());
-            query.setString(2, group.getOwner().getEmail());
-            ResultSet result = query.executeQuery();
-            result.first();
-            return result.getInt(1);
-        } catch (SQLException ex) {
-            System.err.println(ex.getMessage());
-            return -1;
-        }
-    }
-
-    /**
-     * Inserisce dei contatti in un gruppo.
-     * 
-     * @param contacts contatti da inserire
-     * @param groupId id del gruppo nel quale inserire i contatti
-     * 
-     * @return lista di tutti i contatti che non sono stati inseriti,
-     *      se non ci sono stati problemi la lista è vuota
-     */
-    public ArrayList<Contact> insertContactsInGroup(ArrayList<Contact> contacts, int groupId) {
-        ArrayList<Contact> notInserted = new ArrayList<>();
-        contacts.forEach((contact) -> {
-            try {
-                PreparedStatement query = this.connection
-                    .prepareStatement("SELECT insert_contact_in_group(?, ?)");
-                query.setInt(1, groupId);
-                query.setInt(2, contact.getId());
-                ResultSet result = query.executeQuery();
-                result.first();
-                if (result.getBoolean(1) == false) {
-                    notInserted.add(contact);
-                }
-            } catch (SQLException ex) {
-                System.err.println(ex.getMessage());
-                notInserted.add(contact);
-            }
-        });
-        return notInserted;
-    }
-
-    /**
-     * Inserisce dei nuovi numeri di telefono e li associa ad un contatto.
-     * 
-     * @param phoneNumbers numeri da inserire
-     * @param contactId id del contatto al quale associare i numeri
-     *
-     * @return lista di tutti i numeri di telefono che non sono stati inseriti,
-     *      se non ci sono stati problemi la lista è vuota
-     */
-    public ArrayList<PhoneNumber> insertPhoneNumbers(ArrayList<PhoneNumber> phoneNumbers, int contactId) {
-        ArrayList<PhoneNumber> notInserted = new ArrayList<>();
-        phoneNumbers.forEach((phoneNumber) -> {
-            try {
-                PreparedStatement query = this.connection
-                        .prepareStatement("SELECT insert_phone_number(?, ?, ?, ?, ?, ?)");
-                query.setString(1, phoneNumber.getCountryCode());
-                query.setString(2, phoneNumber.getAreaCode());
-                query.setString(3, phoneNumber.getPrefix());
-                query.setString(4, phoneNumber.getPhoneLine());
-                if (phoneNumber.getDescription().equals("")) {
-                    query.setNull(5, Types.VARCHAR);
-                } else {
-                    query.setString(5, phoneNumber.getDescription());
-                }
-                query.setInt(6, contactId);
-                ResultSet result = query.executeQuery();
-                result.first();
-                if (result.getInt(1) == -1) {
-                    notInserted.add(phoneNumber);
-                }
-            } catch (SQLException ex) {
-                System.err.println(ex.getMessage());
-                notInserted.add(phoneNumber);
-            }
-        });
-        return notInserted;
-    }
-
-    /**
-     * Inserisce dei nuovi indirizzi email e li associa ad un contatto.
-     * 
-     * @param emails indirizzi da inserire
-     * @param contactId id del contatto al quale associare gli indirizzi
-     *
-     * @return lista di tutti gli indirizzi email che non sono stati inseriti,
-     *      se non ci sono stati problemi la lista è vuota
-     */
-    public ArrayList<Email> insertEmails(ArrayList<Email> emails, int contactId) {
-        ArrayList<Email> notInserted = new ArrayList<>();
-        emails.forEach((email) -> {
-            try {
-                PreparedStatement query = this.connection
-                        .prepareStatement("SELECT insert_email(?, ?, ?)");
-                query.setString(1, email.getEmail());
-                if (email.getDescription().equals("")) {
-                    query.setNull(2, Types.VARCHAR);
-                } else {
-                    query.setString(2, email.getDescription());
-                }
-                query.setInt(3, contactId);
-                ResultSet resul = query.executeQuery();
-                resul.first();
-                if (!resul.getBoolean(1)) {
-                    notInserted.add(email);
-                }
-            } catch (SQLException ex) {
-                System.err.println(ex.getMessage());
-                notInserted.add(email);
-            }
-        });
-        return notInserted;
-    }
-
-    /**
-     * Inserisce una chiamata.
-     * 
-     * @param call chiamata da inserire
-     * 
-     * @return id della chiamata è stata inserita, altrimenti -1
-     */
-    public int insertCall(Call call) {
-        try {
-            PreparedStatement query = this.connection
-                .prepareStatement("SELECT insert_call(?, ?, ?, ?, ?, ?)");
-            query.setInt(1, call.getCallerNumber().getId());
-            query.setInt(2, call.getCallerContact().getId());
-            query.setInt(3, call.getCalledNumber().getId());
-            Contact called = call.getCalledContact();
-            if (called == null) {
-                query.setNull(4, Types.INTEGER);
-            } else {
-                query.setInt(4, called.getId());
-            }
-            query.setTimestamp(5, call.getTimestamp());
-            query.setLong(6, call.getDuration());
-            ResultSet result = query.executeQuery();
-            result.first();
-            return result.getInt(1);
-        } catch (SQLException ex) {
-            System.err.println(ex.getMessage());
-            return -1;
-        }
-    }
+//--------------------------------------------------------------------------------------------
 
     /**
      * Estrae un utente in base al proprio indirizzo email.
@@ -671,6 +482,226 @@ public class DatabaseManager {
         return calls;
     }
 
+//--------------------------------------------------------------------------------------------
+
+    /**
+     * Inserisce un nuovo contatto.
+     * 
+     * @param contact contatto da inserire
+     * 
+     * @return id del contatto se è stato creato con successo
+     *      o se esisteva già, altrimenti -1
+     */
+    public int insertContact(Contact contact) {
+        try {
+            PreparedStatement query = this.connection
+                .prepareStatement("SELECT insert_contact(?, ?, ?, ?, ?)");
+            query.setString(1, contact.getFirstName());
+            query.setString(2, contact.getFamilyName());
+            if (contact.getSecondName().equals("")) {
+                query.setNull(3, Types.VARCHAR);
+            } else {
+                query.setString(3, contact.getSecondName());
+            }
+            query.setString(4, contact.getOwner().getEmail());
+            if (contact.getAssociatedUser() == null) {
+                query.setNull(5, Types.VARCHAR);
+            } else {
+                query.setString(5, contact.getAssociatedUser().getEmail());
+            }
+            ResultSet result = query.executeQuery();
+            result.first();
+            return result.getInt(1);
+        } catch (SQLException ex) {
+            System.err.println(ex.getMessage());
+            return -1;
+        }
+    }
+
+    /**
+     * Inserisce un nuovo gruppo.
+     * 
+     * @param group gruppo da inserire
+     * 
+     * @return id del gruppo se è stato creato con successo
+     *      o se esisteva già, altrimenti -1
+     */
+    public int insertGroup(Group group) {
+        try {
+            PreparedStatement query = this.connection
+                .prepareStatement("SELECT insert_group(?, ?)");
+            query.setString(1, group.getName());
+            query.setString(2, group.getOwner().getEmail());
+            ResultSet result = query.executeQuery();
+            result.first();
+            return result.getInt(1);
+        } catch (SQLException ex) {
+            System.err.println(ex.getMessage());
+            return -1;
+        }
+    }
+
+    /**
+     * Inserisce dei contatti in un gruppo.
+     * 
+     * @param contacts contatti da inserire
+     * @param groupId id del gruppo nel quale inserire i contatti
+     * 
+     * @return lista di tutti i contatti che non sono stati inseriti,
+     *      se non ci sono stati problemi la lista è vuota
+     */
+    public ArrayList<Contact> insertContactsInGroup(ArrayList<Contact> contacts, int groupId) {
+        ArrayList<Contact> notInserted = new ArrayList<>();
+        contacts.forEach((contact) -> {
+            try {
+                PreparedStatement query = this.connection
+                    .prepareStatement("SELECT insert_contact_in_group(?, ?)");
+                query.setInt(1, groupId);
+                query.setInt(2, contact.getId());
+                ResultSet result = query.executeQuery();
+                result.first();
+                if (result.getBoolean(1) == false) {
+                    notInserted.add(contact);
+                }
+            } catch (SQLException ex) {
+                System.err.println(ex.getMessage());
+                notInserted.add(contact);
+            }
+        });
+        return notInserted;
+    }
+
+    /**
+     * Inserisce dei nuovi numeri di telefono e li associa ad un contatto.
+     * 
+     * @param phoneNumbers numeri da inserire
+     * @param contactId id del contatto al quale associare i numeri
+     *
+     * @return lista di tutti i numeri di telefono che non sono stati inseriti,
+     *      se non ci sono stati problemi la lista è vuota
+     */
+    public ArrayList<PhoneNumber> insertPhoneNumbers(ArrayList<PhoneNumber> phoneNumbers, int contactId) {
+        ArrayList<PhoneNumber> notInserted = new ArrayList<>();
+        phoneNumbers.forEach((phoneNumber) -> {
+            try {
+                PreparedStatement query = this.connection
+                        .prepareStatement("SELECT insert_phone_number(?, ?, ?, ?, ?, ?)");
+                query.setString(1, phoneNumber.getCountryCode());
+                query.setString(2, phoneNumber.getAreaCode());
+                query.setString(3, phoneNumber.getPrefix());
+                query.setString(4, phoneNumber.getPhoneLine());
+                if (phoneNumber.getDescription().equals("")) {
+                    query.setNull(5, Types.VARCHAR);
+                } else {
+                    query.setString(5, phoneNumber.getDescription());
+                }
+                query.setInt(6, contactId);
+                ResultSet result = query.executeQuery();
+                result.first();
+                if (result.getInt(1) == -1) {
+                    notInserted.add(phoneNumber);
+                }
+            } catch (SQLException ex) {
+                System.err.println(ex.getMessage());
+                notInserted.add(phoneNumber);
+            }
+        });
+        return notInserted;
+    }
+
+    /**
+     * Inserisce dei nuovi indirizzi email e li associa ad un contatto.
+     * 
+     * @param emails indirizzi da inserire
+     * @param contactId id del contatto al quale associare gli indirizzi
+     *
+     * @return lista di tutti gli indirizzi email che non sono stati inseriti,
+     *      se non ci sono stati problemi la lista è vuota
+     */
+    public ArrayList<Email> insertEmails(ArrayList<Email> emails, int contactId) {
+        ArrayList<Email> notInserted = new ArrayList<>();
+        emails.forEach((email) -> {
+            try {
+                PreparedStatement query = this.connection
+                        .prepareStatement("SELECT insert_email(?, ?, ?)");
+                query.setString(1, email.getEmail());
+                if (email.getDescription().equals("")) {
+                    query.setNull(2, Types.VARCHAR);
+                } else {
+                    query.setString(2, email.getDescription());
+                }
+                query.setInt(3, contactId);
+                ResultSet resul = query.executeQuery();
+                resul.first();
+                if (!resul.getBoolean(1)) {
+                    notInserted.add(email);
+                }
+            } catch (SQLException ex) {
+                System.err.println(ex.getMessage());
+                notInserted.add(email);
+            }
+        });
+        return notInserted;
+    }
+
+    /**
+     * Inserisce una chiamata.
+     * 
+     * @param call chiamata da inserire
+     * 
+     * @return id della chiamata è stata inserita, altrimenti -1
+     */
+    public int insertCall(Call call) {
+        try {
+            PreparedStatement query = this.connection
+                .prepareStatement("SELECT insert_call(?, ?, ?, ?, ?, ?)");
+            query.setInt(1, call.getCallerNumber().getId());
+            query.setInt(2, call.getCallerContact().getId());
+            query.setInt(3, call.getCalledNumber().getId());
+            Contact called = call.getCalledContact();
+            if (called == null) {
+                query.setNull(4, Types.INTEGER);
+            } else {
+                query.setInt(4, called.getId());
+            }
+            query.setTimestamp(5, call.getTimestamp());
+            query.setLong(6, call.getDuration());
+            ResultSet result = query.executeQuery();
+            result.first();
+            return result.getInt(1);
+        } catch (SQLException ex) {
+            System.err.println(ex.getMessage());
+            return -1;
+        }
+    }
+
+//--------------------------------------------------------------------------------------------
+
+/**
+ * Modifica email e password di un utente.
+ * 
+ * @param oldUser credenziali prima della modifica
+ * @param newUser credenziali dopo la modifica
+ * 
+ * @return true se le credenziali sono state modificate,
+ *      altrimenti false
+ */
+public boolean updateUser(User oldUser, User newUser) {
+    try {
+        PreparedStatement query = this.connection
+            .prepareStatement("UPDATE users SET email = ?, password = ? WHERE email = ?");
+        query.setString(1, newUser.getEmail());
+        query.setString(2, newUser.getPassword());
+        query.setString(3, oldUser.getEmail());
+        return query.executeUpdate() == 1;
+    } catch (SQLException ex) {
+        System.err.println(ex.getMessage());
+        return false;
+    }
+}
+
+//--------------------------------------------------------------------------------------------
+    
     /**
      * Chiude la connessione con il database.
      * 
