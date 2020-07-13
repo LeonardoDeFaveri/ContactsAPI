@@ -23,8 +23,8 @@ public class Main {
 
         tomcat.setPort(Integer.valueOf(webPort));
 
-        StandardContext ctx = (StandardContext) tomcat.addWebapp("/", new File(webappDirLocation).getAbsolutePath());
-        System.out.println("configuring app with basedir: " + new File("./" + webappDirLocation).getAbsolutePath());
+        StandardContext ctx = (StandardContext) tomcat.addWebapp("", new File(webappDirLocation).getAbsolutePath());
+        System.out.println("configuring app with basedir: " + new File("" + webappDirLocation).getAbsolutePath());
 
         // Declare an alternative location for your "WEB-INF/classes" dir
         // Servlet 3.0 annotation will work
@@ -35,6 +35,7 @@ public class Main {
         ctx.setResources(resources);
 
         tomcat.start();
+        System.out.println("Service started");
         tomcat.getServer().await();
     }
 }
