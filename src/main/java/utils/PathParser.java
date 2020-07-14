@@ -39,7 +39,7 @@ public class PathParser {
      * @return livelli dell'URL
      */
     public ArrayList<String> getPathTokens() {
-        return pathTokens;
+        return this.pathTokens;
     }
 
     /**

@@ -53,7 +53,7 @@
     </dependency>
   </dependencies>
   <build>
-    <finalName>embeddedTomcatSample</finalName>
+    <finalName>ContactsAPI_webService</finalName>
     <plugins>
         <plugin>
             <groupId>org.codehaus.mojo</groupId>

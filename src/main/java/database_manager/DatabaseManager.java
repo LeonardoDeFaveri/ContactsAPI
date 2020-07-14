@@ -72,7 +72,7 @@ public class DatabaseManager {
             query.setString(2, contact.getOwner().getPassword());
             query.setString(3, contact.getFirstName());
             query.setString(4, contact.getFamilyName());
-            if (contact.getSecondName().equals("")) {
+            if (contact.getSecondName() == null) {
                 query.setNull(5, Types.VARCHAR);
             } else {
                 query.setString(5, contact.getSecondName());
@@ -498,7 +498,7 @@ public class DatabaseManager {
                 .prepareStatement("SELECT insert_contact(?, ?, ?, ?, ?)");
             query.setString(1, contact.getFirstName());
             query.setString(2, contact.getFamilyName());
-            if (contact.getSecondName().equals("")) {
+            if (contact.getSecondName() == null) {
                 query.setNull(3, Types.VARCHAR);
             } else {
                 query.setString(3, contact.getSecondName());
@@ -590,7 +590,7 @@ public class DatabaseManager {
                 query.setString(2, phoneNumber.getAreaCode());
                 query.setString(3, phoneNumber.getPrefix());
                 query.setString(4, phoneNumber.getPhoneLine());
-                if (phoneNumber.getDescription().equals("")) {
+                if (phoneNumber.getDescription() == null) {
                     query.setNull(5, Types.VARCHAR);
                 } else {
                     query.setString(5, phoneNumber.getDescription());
@@ -625,7 +625,7 @@ public class DatabaseManager {
                 PreparedStatement query = this.connection
                         .prepareStatement("SELECT insert_email(?, ?, ?)");
                 query.setString(1, email.getEmail());
-                if (email.getDescription().equals("")) {
+                if (email.getDescription() == null) {
                     query.setNull(2, Types.VARCHAR);
                 } else {
                     query.setString(2, email.getDescription());
@@ -677,28 +677,148 @@ public class DatabaseManager {
 
 //--------------------------------------------------------------------------------------------
 
-/**
- * Modifica email e password di un utente.
- * 
- * @param oldUser credenziali prima della modifica
- * @param newUser credenziali dopo la modifica
- * 
- * @return true se le credenziali sono state modificate,
- *      altrimenti false
- */
-public boolean updateUser(User oldUser, User newUser) {
-    try {
-        PreparedStatement query = this.connection
-            .prepareStatement("UPDATE users SET email = ?, password = ? WHERE email = ?");
-        query.setString(1, newUser.getEmail());
-        query.setString(2, newUser.getPassword());
-        query.setString(3, oldUser.getEmail());
-        return query.executeUpdate() == 1;
-    } catch (SQLException ex) {
-        System.err.println(ex.getMessage());
-        return false;
+    /**
+     * Modifica email e password di un utente.
+     * 
+     * @param oldUser credenziali prima della modifica
+     * @param newUser credenziali dopo la modifica
+     * 
+     * @return true se le credenziali sono state modificate,
+     *      altrimenti false
+     */
+    public boolean updateUser(User oldUser, User newUser) {
+        try {
+            PreparedStatement query = this.connection
+                .prepareStatement("UPDATE users SET email = ?, password = ? WHERE email = ?");
+            query.setString(1, newUser.getEmail());
+            query.setString(2, newUser.getPassword());
+            query.setString(3, oldUser.getEmail());
+            return query.executeUpdate() == 1;
+        } catch (SQLException ex) {
+            System.err.println(ex.getMessage());
+            return false;
+        }
     }
-}
+
+    /**
+     * Modifica le proprietà:
+     *  * firtst_name
+     *  * family_name
+     *  * second_name
+     * del contatto.
+     * 
+     * @param contactId id del contatto da modificare
+     * @param newContact contatto dopo la modifica
+     * 
+     * @return true se la modifica è andata a buon fine, altrimenti false
+     */
+    public boolean updateContact(int contactId, Contact newContact) {
+        try {
+            PreparedStatement query = this.connection
+                .prepareStatement("UPDATE contacts SET first_name = ?, family_name = ?, second_name = ? WHERE id = ?");
+            query.setString(1, newContact.getFirstName());
+            query.setString(2, newContact.getFamilyName());
+            String secondName = newContact.getSecondName();
+            if (secondName == null) {
+                query.setNull(3, Types.VARCHAR);
+            } else {
+                query.setString(3, secondName);
+            }
+            query.setInt(4, contactId);
+            return query.executeUpdate() == 1;
+        } catch (SQLException ex) {
+            System.err.println(ex.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Aggiorna un numero telefono associato ad un contatto.
+     * 
+     * @param contactId id del contatto per il quale modificare il
+     *      numero di telefono
+     * @param phomeNumberId id del vecchio numero di telefono associato
+     * @param newPhoneNumber nuovo numero di telefono da associare
+     * 
+     * @return true se la modifica è andata a buon fine, altrimenti false
+     */
+    public boolean updateContactPhoneNumber(int contactId, int phoneNumberId, PhoneNumber newPhoneNumber) {
+        try {
+            PreparedStatement query = this.connection
+                .prepareStatement("SELECT update_contact_phone_number(?, ?, ?, ?, ?, ?, ?)");
+            query.setInt(1, contactId);
+            query.setInt(2, phoneNumberId);
+            query.setString(3, newPhoneNumber.getCountryCode());
+            query.setString(4, newPhoneNumber.getAreaCode());
+            query.setString(5, newPhoneNumber.getPrefix());
+            query.setString(6, newPhoneNumber.getPhoneLine());
+            String description = newPhoneNumber.getDescription();
+            if (description == null) {
+                query.setNull(7, Types.VARCHAR);
+            } else {
+                query.setString(7, description);
+            }
+            ResultSet result = query.executeQuery();
+            result.first();
+            return result.getBoolean(1);
+        } catch (SQLException ex) {
+            System.err.println(ex.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Aggiorna un indirizzo email associato ad un contatto.
+     * 
+     * @param contactId id del contatto per il quale modificare il
+     *      numero di telefono
+     * @param oldEmail vecchio indirizzo email associato
+     * @param newEmail nuovo indirizzo email da associare
+     * 
+     * @return true se la modifica è andata a buon fine, altrimenti false
+     */
+    public boolean updateContactEmail(int contactId, String oldEmail, Email newEmail) {
+        try {
+            PreparedStatement query = this.connection
+                .prepareStatement("SELECT update_contact_email(?, ?, ?, ?)");
+            query.setInt(1, contactId);
+            query.setString(2, oldEmail);
+            query.setString(3, newEmail.getEmail());
+            String description = newEmail.getDescription();
+            if (description == null) {
+                query.setNull(4, Types.VARCHAR);
+            } else {
+                query.setString(4, description);
+            }
+            ResultSet result = query.executeQuery();
+            result.first();
+            return result.getBoolean(1);
+        } catch (SQLException ex) {
+            System.err.println(ex.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Modifica il nome di un gruppo.
+     * 
+     * @param groupId id del gruppo al quale modificare il nome
+     * @param name nuovo nome del gruppo
+     * 
+     * @return true se la modifica è andata a buon fine, altrimenti false
+     */
+    public boolean updateGroupName(int groupId, String name) {
+        try {
+            PreparedStatement query = this.connection
+                .prepareStatement("UPDATE groups SET name = ? WHERE id = ?");
+            query.setString(1, name);
+            query.setInt(2, groupId);
+            return query.executeUpdate() == 1;
+        } catch (SQLException ex) {
+            System.err.println(ex.getMessage());
+            return false;
+        }
+    }
 
 //--------------------------------------------------------------------------------------------
     

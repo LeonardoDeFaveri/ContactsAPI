@@ -51,6 +51,9 @@ public class Contact {
         this.firstName = JSONContact.getString(ContactKeys.FIRST_NAME);
         this.familyName = JSONContact.getString(ContactKeys.FAMILY_NAME);
         this.secondName = JSONContact.optString(ContactKeys.SECOND_NAME);
+        if (this.secondName.equals("")) {
+            this.secondName = null;
+        }
         this.owner = new User(JSONContact.getJSONObject(ContactKeys.OWNER));
         JSONObject user = JSONContact.optJSONObject(ContactKeys.ASSOCIATED_USER);
         if (user == null) {

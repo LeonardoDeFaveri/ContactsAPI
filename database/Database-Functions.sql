@@ -479,4 +479,82 @@ BEGIN
 END //
 DELIMITER ;
 
+-- AGGIORNAMENTI -------------------------------------------------------------------------------
+
+/**
+ * update_contact_phone_number sostituisce il numero di telefono
+ * associato al contatto con un nuovo numero.
+ *
+ * @RETURN TRUE se il numero di telefono è stato cambiato, altrimenti FALSE
+ */
+DELIMITER //
+CREATE OR REPLACE FUNCTION update_contact_phone_number (
+    p_contact_id INT,
+    p_phone_id INT,
+    p_country_code VARCHAR (3),
+    p_area_code CHAR (3),
+    p_prefix CHAR (3),
+    p_phone_line CHAR (4),
+    p_description VARCHAR (50)
+) RETURNS BOOLEAN MODIFIES SQL DATA
+BEGIN
+    DECLARE var_new_phone_id INT;
+
+    IF (
+        SELECT check_phone_number_existence(p_country_code, p_area_code, p_prefix, p_phone_line
+    ) = FALSE) THEN
+        INSERT INTO phone_numbers (country_code, area_code, prefix, phone_line, description)
+            VALUES (p_country_code, p_area_code, p_prefix, p_phone_line, p_description);
+    END IF;
+
+    SELECT id INTO var_new_phone_id FROM phone_numbers WHERE
+        country_code = p_country_code AND
+        area_code = p_area_code AND
+        prefix = p_prefix AND
+        phone_line = p_phone_line;
+
+    IF var_new_phone_id IS NULL THEN
+        RETURN FALSE;
+    END IF;
+
+    UPDATE contacts_numbers SET phone_id = var_new_phone_id WHERE 
+        contact_id = p_contact_id AND phone_id = p_phone_id;
+
+    IF (SELECT ROW_COUNT()) = 1 THEN
+        RETURN TRUE;
+    ELSE
+        RETURN FALSE;
+    END IF;
+END //
+DELIMITER ;
+
+/**
+ * update_contact_email sostitusice l'indirizzo email
+ * associato al contatto con un nuovo indirizzo.
+ *
+ * @RETURN TRUE se l'indirizzo è stato cambiato, altrimenti FALSE
+ */
+DELIMITER //
+CREATE OR REPLACE FUNCTION update_contact_email (
+    p_contact_id INT,
+    p_old_email VARCHAR (320),
+    p_new_email VARCHAR (320),
+    p_description VARCHAR (50)
+) RETURNS BOOLEAN MODIFIES SQL DATA
+BEGIN
+    IF (SELECT check_email_existence(p_new_email) = FALSE) THEN
+        INSERT INTO emails (email, description) VALUES (p_new_email, p_description);
+    END IF;
+
+    UPDATE contacts_emails SET email = p_new_email WHERE 
+        contact_id = p_contact_id AND email = p_old_email;
+
+    IF (SELECT ROW_COUNT()) = 1 THEN
+        RETURN TRUE;
+    ELSE
+        RETURN FALSE;
+    END IF;
+END //
+DELIMITER ;
+
 COMMIT;

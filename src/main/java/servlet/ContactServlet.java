@@ -537,13 +537,112 @@ public class ContactServlet extends HttpServlet {
        * ad eccezione di 'owner', 'associated user' e 'id'.
        */
       case FirstLevelValues.CONTACTS:
+        try {
+          int contactId = Integer.parseInt(pathTokens.get(1));
+          try {
+            switch (pathTokens.get(2)) {
+              case SecondLevelValues.PHONE_NUMBERS:
+                try {
+                  int numberId = Integer.parseInt(pathTokens.get(3));
+                  PhoneNumber phoneNumber = jsonParser.getPhoneNumber();
+                  if (phoneNumber == null) {
+                    resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                    out.write(ErrorHandler.getError(ErrorCodes.WRONG_SYNTAX).toString());
+                  } else {
+                    if (this.dbManager.updateContactPhoneNumber(contactId, numberId, phoneNumber)) {
+                      resp.setStatus(HttpServletResponse.SC_OK);
+                    } else {
+                      resp.setStatus(HttpServletResponse.SC_CONFLICT);
+                      out.write(ErrorHandler.getError(ErrorCodes.DATA_NOT_MODIFIED).toString());
+                    }
+                  }
+                } catch (NumberFormatException ex) {
+                  resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                  out.write(ErrorHandler.getError(ErrorCodes.WRONG_OBJECT_ID).toString());
+                } catch (IndexOutOfBoundsException ex) {
+                  resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                  out.write(ErrorHandler.getError(ErrorCodes.MISSING_URL_COMPONENT).toString());
+                }
+                break;
+              
+              case SecondLevelValues.EMAILS:
+                try {
+                  String base64Email = pathTokens.get(3);
+                  String oldEmail = new String(Base64.getDecoder().decode(base64Email), StandardCharsets.UTF_8);
+                  Email newEmail = jsonParser.getEmail();
+                  if (newEmail == null) {
+                    resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                    out.write(ErrorHandler.getError(ErrorCodes.WRONG_SYNTAX).toString());
+                  } else {
+                    if (this.dbManager.updateContactEmail(contactId, oldEmail, newEmail)) {
+                      resp.setStatus(HttpServletResponse.SC_OK);
+                    } else {
+                      resp.setStatus(HttpServletResponse.SC_CONFLICT);
+                      out.write(ErrorHandler.getError(ErrorCodes.DATA_NOT_MODIFIED).toString());
+                    }
+                  }
+                } catch (NumberFormatException ex) {
+                  resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                  out.write(ErrorHandler.getError(ErrorCodes.WRONG_OBJECT_ID).toString());
+                } catch (IndexOutOfBoundsException ex) {
+                  resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                  out.write(ErrorHandler.getError(ErrorCodes.MISSING_URL_COMPONENT).toString());
+                }
+                break;
+              
+              default:
+                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                out.write(ErrorHandler.getError(ErrorCodes.WRONG_URL_COMPONENT).toString());
+                break;
+            }
+          } catch (IndexOutOfBoundsException ex) {
+            Contact newContact = jsonParser.getContact();
+            if (newContact == null) {
+              resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+              out.write(ErrorHandler.getError(ErrorCodes.WRONG_SYNTAX).toString());
+            } else {
+              if (this.dbManager.updateContact(contactId, newContact)) {
+                resp.setStatus(HttpServletResponse.SC_OK);
+              } else {
+                resp.setStatus(HttpServletResponse.SC_CONFLICT);
+                out.write(ErrorHandler.getError(ErrorCodes.DATA_NOT_MODIFIED).toString());
+              }
+            }
+          }
+        } catch (NumberFormatException ex) {
+          resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+          out.write(ErrorHandler.getError(ErrorCodes.WRONG_OBJECT_ID).toString());
+        } catch (IndexOutOfBoundsException ex) {
+          resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+          out.write(ErrorHandler.getError(ErrorCodes.MISSING_URL_COMPONENT).toString());
+        }
         break;
 
       /**
-       * Modifica di un gruppo e di tutte le sue proprietà
-       * ad eccezione di 'owner' e 'id'.
+       * Modifica del nome del gruppo.
        */
       case FirstLevelValues.GROUPS:
+      try {
+          int groupId = Integer.parseInt(pathTokens.get(1));
+          Group group = jsonParser.getGroup();
+          if (group == null) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            out.write(ErrorHandler.getError(ErrorCodes.WRONG_SYNTAX).toString());
+          } else {
+            if (this.dbManager.updateGroupName(groupId, group.getName())) {
+              resp.setStatus(HttpServletResponse.SC_OK);
+            } else {
+              resp.setStatus(HttpServletResponse.SC_CONFLICT);
+              out.write(ErrorHandler.getError(ErrorCodes.DATA_NOT_MODIFIED).toString());
+            }
+          }
+        } catch (NumberFormatException ex) {
+          resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+          out.write(ErrorHandler.getError(ErrorCodes.WRONG_OBJECT_ID).toString());
+        } catch (IndexOutOfBoundsException ex) {
+          resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+          out.write(ErrorHandler.getError(ErrorCodes.MISSING_URL_COMPONENT).toString());
+        }
         break;
     
       // Non è stato specificato nessun componente di primo livello nell'URL

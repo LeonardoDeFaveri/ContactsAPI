@@ -166,6 +166,19 @@ public class JSONparser {
     }
 
     /**
+     * Restituisce il numero di telefono specificato.
+     * 
+     * @return numero di telefono se è stato trovato, altrimenti null
+     */
+    public PhoneNumber getPhoneNumber() {
+        try {
+            return new PhoneNumber(this.object.getJSONObject("phoneNumber"));
+        } catch (JSONException ex) {
+            return null;
+        }
+    }
+
+    /**
      * Restituisce tutti gli indirizzi email specificati.
      * 
      * @return indirizzi email se ne sono stati trovati, altrimenti
@@ -184,6 +197,19 @@ public class JSONparser {
             return emails;
         } catch (JSONException ex) {
             return new ArrayList<>();
+        }
+    }
+
+    /**
+     * Restituisce il l'indirizzo email specificato.
+     * 
+     * @return indirizzo email se è stato trovato, altrimenti null
+     */
+    public Email getEmail() {
+        try {
+            return new Email(this.object.getJSONObject("email"));
+        } catch (JSONException ex) {
+            return null;
         }
     }
 }

@@ -155,7 +155,7 @@ public class ErrorHandler {
         error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
         error.put(ErrorKeys.TITLE, "Error while interpreting the URL");
         error.put(ErrorKeys.CODE, ErrorCodes.MISSING_URL_COMPONENT);
-        error.put(ErrorKeys.MESSAGE, "The URL is the endpoint");
+        error.put(ErrorKeys.MESSAGE, "The URL is incomplete");
         error.put(ErrorKeys.SUGGESTION, "Try specifying one or more components in the URL");
         return error;
     }

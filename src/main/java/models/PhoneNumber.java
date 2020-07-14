@@ -80,6 +80,9 @@ public class PhoneNumber {
         this.prefix = JSONPhoneNumber.getString(PhoneNumberKeys.PREFIX);
         this.phoneLine = JSONPhoneNumber.getString(PhoneNumberKeys.PHONE_LINE);
         this.description = JSONPhoneNumber.optString(PhoneNumberKeys.DESCRIPTION);
+        if (this.description.equals("")) {
+            this.description = null;
+        }
     }
 
     /**

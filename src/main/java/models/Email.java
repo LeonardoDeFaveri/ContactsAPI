@@ -30,6 +30,9 @@ public class Email {
     public Email(JSONObject JSONEmail) throws JSONException {
         this.email = JSONEmail.getString(EmailKeys.EMAIL);
         this.description = JSONEmail.optString(EmailKeys.DESCRIPTION);
+        if (this.description.equals("")) {
+            this.description = null;
+        }
     }
 
     /**
