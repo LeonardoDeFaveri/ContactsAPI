@@ -18,4 +18,5 @@ public interface ErrorCodes {
     public final int WRONG_OBJECT_ID = 11;
     public final int DATA_NOT_MODIFIABLE = 12;
     public final int DATA_NOT_MODIFIED = 13;
+    public final int DELETION_UNAUTHORIZED = 14;
 }

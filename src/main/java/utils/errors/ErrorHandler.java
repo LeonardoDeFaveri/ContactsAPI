@@ -58,6 +58,10 @@ public class ErrorHandler {
                 error = getDataNotModifiedError();
                 break;
 
+            case ErrorCodes.DELETION_UNAUTHORIZED:
+                error = getDelitionUnauthorizedError();
+                break;
+
             default:
                 error = new JSONObject();
                 break;
@@ -269,6 +273,23 @@ public class ErrorHandler {
         error.put(ErrorKeys.CODE, ErrorCodes.DATA_NOT_MODIFIED);
         error.put(ErrorKeys.MESSAGE, "The modification of one or more resources has failed");
         error.put(ErrorKeys.SUGGESTION, "Try checking the values of the fields that you want to modify");
+        return error;
+    }
+
+    /**
+     * L'eliminazione di una risorsa non è andata a buon fine
+     * perchè la risorsa non appartiene all'utente che sta cercando
+     * di eliminarla.
+     * 
+     * @return messaggio di errore
+     */
+    private static JSONObject getDelitionUnauthorizedError() {
+        JSONObject error = new JSONObject();
+        error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
+        error.put(ErrorKeys.TITLE, "Resource delition unauthorized");
+        error.put(ErrorKeys.CODE, ErrorCodes.DELETION_UNAUTHORIZED);
+        error.put(ErrorKeys.MESSAGE, "You cannot delete a resource that doesn't belong to you");
+        error.put(ErrorKeys.SUGGESTION, "Try checking the resource identifier provided or try logging in with the right credentials");
         return error;
     }
 }

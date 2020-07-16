@@ -42,12 +42,8 @@ public class DatabaseManager {
             query.setString(1, user.getEmail());
             query.setString(2, user.getPassword());
             ResultSet result = query.executeQuery();
-                result.first();
-            if (result.getBoolean(1)) {
-                return true; 
-            } else {
-                return false;
-            }
+            result.first();
+            return result.getBoolean(1);
         } catch (SQLException ex) {
             System.err.println(ex.getMessage());
             return false;
@@ -813,6 +809,28 @@ public class DatabaseManager {
                 .prepareStatement("UPDATE groups SET name = ? WHERE id = ?");
             query.setString(1, name);
             query.setInt(2, groupId);
+            return query.executeUpdate() == 1;
+        } catch (SQLException ex) {
+            System.err.println(ex.getMessage());
+            return false;
+        }
+    }
+
+//--------------------------------------------------------------------------------------------
+
+    /**
+     * Elimina un utente e tutte le risorsa ad esso associate
+     * dal database.
+     * 
+     * @param userEmail indirizzo email dell'utente da eliminare
+     * 
+     * @return true se l'utente è stato eliminato, altrimenti false
+     */
+    public boolean deleteUser(String userEmail) {
+        try {
+            PreparedStatement query = this.connection
+                .prepareStatement("DELETE FROM users WHERE email = ?");
+            query.setString(1, userEmail);
             return query.executeUpdate() == 1;
         } catch (SQLException ex) {
             System.err.println(ex.getMessage());

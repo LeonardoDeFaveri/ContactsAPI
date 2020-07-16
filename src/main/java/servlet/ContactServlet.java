@@ -667,6 +667,57 @@ public class ContactServlet extends HttpServlet {
     PrintWriter out = resp.getWriter();
     resp.setCharacterEncoding("UTF-8");
 
+    PathParser pathParser = new PathParser(req.getPathInfo(), req.getParameterMap());
+    ArrayList<String> pathTokens = pathParser.getPathTokens();
+    if (pathTokens.size() == 0) {
+      pathTokens.add(FirstLevelValues.NOT_PROVIDED);
+    }
+
+    // Dato che le interazioni con i web service sono senza stato, è necessario
+    // che l'utente venga autenticato ad ogni richiesta
+    User user = this.getCredentials(req);
+    if (user == null && !pathTokens.get(0).equals(FirstLevelValues.USERS)) {
+      resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+      out.write(ErrorHandler.getError(ErrorCodes.MISSING_AUTHENTICATION).toString());
+      return;
+    }
+
+    if (!this.dbManager.testCredentials(user)) {
+      resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+      out.write(ErrorHandler.getError(ErrorCodes.FAILED_AUTHENTICATION).toString());
+      return;
+    }
+
+    switch (pathTokens.get(0)) {
+      // Eliminazione dell'utente
+      case FirstLevelValues.USERS:
+        try {
+          String base64Email = pathTokens.get(1);
+          String userEmail = new String(Base64.getDecoder().decode(base64Email), StandardCharsets.UTF_8);
+          if (user.getEmail().equals(userEmail)) {
+            if (this.dbManager.deleteUser(userEmail)) {
+              resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
+            } else {
+              resp.setStatus(HttpServletResponse.SC_CONFLICT);
+              out.write(ErrorHandler.getError(ErrorCodes.DATA_NOT_MODIFIED).toString());
+            } 
+          } else {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            out.write(ErrorHandler.getError(ErrorCodes.DELETION_UNAUTHORIZED).toString());
+          }
+        } catch (NumberFormatException ex) {
+          resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+          out.write(ErrorHandler.getError(ErrorCodes.WRONG_OBJECT_ID).toString());
+        } catch (IndexOutOfBoundsException ex) {
+          resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+          out.write(ErrorHandler.getError(ErrorCodes.MISSING_URL_COMPONENT).toString());
+        }
+        break;
+    
+      default:
+        break;
+    }
+
     out.flush();
     out.close();
   }
