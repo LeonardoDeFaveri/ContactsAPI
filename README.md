@@ -1,2 +1,9 @@
-# ContactsAPI
-A web service for contacts management acroos the web.
+<DOCTYPE html>
+<html>
+<head>
+  <title>Contacts API</title>
+</head>
+<body>
+  <h2>ContactsAPI doc</h2>
+</body>
+</html>
