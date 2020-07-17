@@ -109,17 +109,17 @@
           <td>/contacts/{contactId}/phoneNumbers/</td>
           <td>
             <b>contactId:</b> id of a specific user <hr>
-            Phone number definition
+            List of phone numbers
           </td>
-          <td>Creates a new phone number and associates it to the contact identified by the id, but only if the contact belongs to the user who is making the request</td>
+          <td>Creates new phone numbers and associates them to the contact identified by the id, but only if the contact belongs to the user who is making the request</td>
         </tr>
         <tr>
           <td>/contacts/{contactId}/emails/</td>
           <td>
             <b>contactId:</b> id of a specific user <hr>
-            Email definition
+            List of emails
           </td>
-          <td>Creates a new email address and associates it to the contact identified by the id, but only if the contact belongs to the user who is making the request</td>
+          <td>Creates new email addresses and associates them to the contact identified by the id, but only if the contact belongs to the user who is making the request</td>
         </tr>
         <tr>
           <td>/groups/</td>
@@ -142,5 +142,117 @@
       </tbody>
     </table>
   </div>
+  <p>When the resource has been created it id is returned into the <b>Location</b> header of the response message and <b>210 Created</b> will be the status code.</p>
+  <p>If an error occurs when the user tries to create a new contact or add new phone numbers or email addresses to a contact, then a list of all numbers or email addresses not entered successfully is returned.</p>
+  
+  <h3>PUT requests</h3>
+  <div class="centered">
+    <table id="put_requests">
+      <thead>
+        <tr>
+          <th>Path</th>
+          <th>Parameters</th>
+          <th>Result</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>/users/</td>
+          <td>New user's credentials</td>
+          <td>Modifies the credentials of the user who is making the request</td>
+        </tr>
+        <tr>
+          <td>/contacts/{contactId}/</td>
+          <td>Contact definition</td>
+          <td>Substitutes the old contact with a new one, but only if the contact belongs to the user who is making the request</td>
+        </tr>
+        <tr>
+          <td>/contacts/{contactId}/phoneNumbers/{phoneId}</td>
+          <td>
+            <b>contactId:</b> id of a specific contact <hr>
+            <b>phoneId:</b> id of a specific phoneNumber <hr>
+            Phone number definition
+          </td>
+          <td>Subsitutes one of the phone numbers of a contact with another, but only if the contact belongs to the user who is making the request</td>
+        </tr>
+        <tr>
+          <td>/contacts/{contactId}/emails/{email}</td>
+          <td>
+            <b>contactId:</b> id of a specific contact <hr>
+            <b>email:</b> old email<hr>
+            Email definition
+          </td>
+          <td>Subsitutes one of the emails of a contact with another, but only if the contact belongs to the user who is making the request</td>
+        </tr>
+        <tr>
+          <td>/groups/{groupId}</td>
+          <td>
+            <b>groupId:</b> id of a specific group <hr>
+            Group definition
+          </td>
+          <td>Modifies the name of a group, but only if the group belongs to the user who is making the request</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p>When the email of the phone number of a contact is modified the resource is not really modified, it is subtituted with an already existing one o with a new one created in the moment of the request, so the resource id has to be updated with a GET request.</p>
+
+  <h3>DELETE requests</h3>  
+  <div class="centered">
+    <table>
+      <thead>
+        <tr>
+          <th>Path</th>
+          <th>Parameters</th>
+          <th>Result</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>/users/</td>
+          <td></td>
+          <td>Deletes the user who is making the request</td>
+        </tr>
+        <tr>
+          <td>/contacts/{contacId}</td>
+          <td><b>contactId:</b> id of a specific contact</td>
+          <td>Deletes a specific contact, but only if it belongs to the user who is making the request</td>
+        </tr>
+        <tr>
+          <td>/contacts/{contacId}/phoneNumbers/{phoneId}</td>
+          <td>
+            <b>contactId:</b> id of a specific contact <hr>
+            <b>phoneId:</b> id of a specific phone number
+          </td>
+          <td>Deletes a phone number associated to a contact, but only if the contact belongs to the user who is making the request</td>
+        </tr>
+        <tr>
+          <td>/contacts/{contactId}/emails/{email}</td>
+          <td>
+            <b>contactId:</b> id of a specific contact <hr>
+            <b>email:</b> email
+          </td>
+          <td>Deletes an email address associated to a contact, but only if the contact belongs to the user who is making the request</td>
+        </tr>
+        <tr>
+          <td>/groups/{groupId}</td> <hr>
+          <td><b>groupId:</b> id of a specific group</td>
+          <td>Deletes a group, but only if it belongs to the user who is making the request</td>
+        </tr>
+        <tr>
+          <td>/groups/{groupId}/contacts/{contactId}</td>
+          <td>
+            <b>groupId:</b> id of a specific group <hr>
+            <b>contactId:</b> id of a specific contact
+          </td>
+          <td>Removes a contact by a group, but only if the group belongs to the user who is making the request</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Errors</h3>
+  <p>If the user tries to modify a resource that doesn't belongs to him a <b>401 Unauthorized</b> status code is returned.</p>
+  <p></p>If the resource has not been created due to either an authorization problem (i.e. the user tried to add contacts to a group that doesn't belong to him) or becaues the parent resource doesn't exist, the status code returned will be <b>400 bad request</b>.</p>
 </body>
 </html>

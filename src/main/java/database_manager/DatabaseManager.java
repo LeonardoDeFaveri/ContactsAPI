@@ -963,6 +963,46 @@ public class DatabaseManager {
         }
     }
 
+    /**
+     * Elimina un gruppo.
+     * 
+     * @param groupId id del gruppo da eliminare
+     * 
+     * @return true se il gruppo è stato eliminato, altrimenti false
+     */
+    public boolean deleteGroup(int groupId) {
+        try {
+            PreparedStatement query = this.connection
+                .prepareStatement("DELETE FROM groups WHERE id = ?");
+            query.setInt(1, groupId);
+            return query.executeUpdate() == 1;
+        } catch (SQLException ex) {
+            System.err.println(ex.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Rimuove un contatto da un gruppo.
+     * 
+     * @param contactId id del contatto da rimuovere
+     * @param groupId id del gruppo dal quale rimuovere il contattoù
+     * 
+     * @return true se il contatto è stato rimosso dal gruppo, altrimenti false
+     */
+    public boolean deleteContactInGroup(int contactId, int groupId) {
+        try {
+            PreparedStatement query = this.connection
+                .prepareStatement("UPDATE groups_contacts SET until = utc_timestamp() WHERE id = ? AND contact_id = ? AND until IS NULL");
+            query.setInt(1, groupId);
+            query.setInt(2, contact);
+            return query.executeUpdate() == 1;
+        } catch (SQLException ex) {
+            System.err.println(ex.getMessage());
+            return false;
+        }
+    }
+
 //--------------------------------------------------------------------------------------------
     
     /**
