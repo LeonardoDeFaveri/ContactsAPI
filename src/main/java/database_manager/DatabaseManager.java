@@ -995,7 +995,7 @@ public class DatabaseManager {
             PreparedStatement query = this.connection
                 .prepareStatement("UPDATE groups_contacts SET until = utc_timestamp() WHERE id = ? AND contact_id = ? AND until IS NULL");
             query.setInt(1, groupId);
-            query.setInt(2, contact);
+            query.setInt(2, contactId);
             return query.executeUpdate() == 1;
         } catch (SQLException ex) {
             System.err.println(ex.getMessage());

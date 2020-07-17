@@ -250,9 +250,87 @@
       </tbody>
     </table>
   </div>
+  <p>When a resource is successfully deleted, <b>204 No Content</b> is returned.</p>
+
+  <h3>JSON syntax</h3>
+  <h4>Login</h4>
+
+  ```json
+  {
+    "justLogin": true;
+  }
+  ```
+
+  <h4>User</h4>
+
+  ```json
+  {
+    "user": {
+      "email": "...",
+      "password": "..."
+    }
+  }
+  ```
+
+  <p>Except when registering a new user, <code>password</code> field can be omitted.</p>
+  
+  <h4>Contact</h4>
+
+  ```json
+  {
+    "contact": {
+      "id": ...,
+      "firstName": "...",
+      "familyName": "...",
+      "secondName": "...",
+      "owner": {},
+      "associatedUser": {},
+      "phoneNumbers": [],
+      "emails": []
+    }
+  }
+  ```
+
+  <p>To the fields <code>owner</code> and <code>associateUser</code> it must be assigned an object of type <code>User</code>. In the same way to <code>phoneNumbers</code> and <code>emails</code> it must be assigned and array of objects of type <code>PhoneNumber</code> and <code>Email</code>.</p> 
+  <p>When creating a new contact <code>firstName</code>, <code>familyName</code> and <code>owner</code> fields must be specified, while the other can be null. Of course, when creating a new user the <code>id</code> field doesn't have a value.</p>
+  
+  <h4>Group</h4>
+
+  ```json
+  {
+    "group": {
+      "id": ...,
+      "name": "...",
+      "owner": {},
+      "contacts": []
+    }
+  }
+  ```
+
+  <p>As before, <code>owner</code> is an object of type <code>User</code> and <code>contacts</code> is an array of objects of type <code>Contact</code>.</p>
+  <p>When creating a group values for <code>name</code> and <code>owner</code> fields must be provided.</p>
+
+  <h4>PhoneNumber</h4>
+
+  ```json
+  {
+    "phoneNumber": {
+      "id": ...,
+      "countryCode": "...",
+      "areaCode": "...",
+      "prefix": "...",
+      "phoneLine": "...",
+      "description": "..."
+    }
+  }
+  ```
+
+  <p><code>countryCode</code> is the national identified (i.e. country code for Italy is +39) and it must be provided without the <code>+</code> character. Then reading the number from left to right, <code>areaCode</code> and <code>prefix</code> are the first 2 groups of 3 digits and <code>phoneLine</code> holds the last 4 digits.</p>
+
+  <p>When creating a phone number all the fields must mandatorily be provided except for <code>id</code> and <code>description</code>.</p>
 
   <h3>Errors</h3>
   <p>If the user tries to modify a resource that doesn't belongs to him a <b>401 Unauthorized</b> status code is returned.</p>
-  <p></p>If the resource has not been created due to either an authorization problem (i.e. the user tried to add contacts to a group that doesn't belong to him) or becaues the parent resource doesn't exist, the status code returned will be <b>400 bad request</b>.</p>
+  <p></p>If the resource has not been created due to either an authorization problem (i.e. the user tried to add contacts to a group that doesn't belong to him) or becaues the parent resource doesn't exist, the status code returned will be <b>400 bad request</b>.</pre>
 </body>
 </html>
