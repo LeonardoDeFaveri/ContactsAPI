@@ -24,7 +24,7 @@
   <p>It is important to remember that the web service doesn't support the HTTPS protocol, so it is not allowed to use <i>https://truecloud.ddns.net:9000/contacts/api/</i> as the endpoint.</p>
 
   <h3>Data transmission</h3>
-  <p>Where data needs to be transfered into the HTTP request body (i.e. POST, PUT requests) it must be defined using the <a href="https://www.json.org" target="_blank">JSON</a> language.</p>
+  <p>When data needs to be transfered into the HTTP request body (i.e. POST, PUT requests) it must be defined using the <a href="https://www.json.org" target="_blank">JSON</a> language.</p>
 
   <h3>Authentication</h3>
   <p>To make a request the user must be authenticated by the web service server. In order to do so, the user must provide its credentials into the HTTP <b>Authorization</b> header. The header type is Basic and the credentials have to be specified after the "Basic" string separeted by a column (username:password). This string (without "Basic") must be encoded with a base 64 encoding and the password mustn't be sent in clear, but its digest has to be provided, instead.</p>
@@ -87,5 +87,23 @@
     </table>
   </div>
   <p>If the id provided doesn't identify any resource or if the resource identified cannot be returned (i.e. if the resource belongs to another user) then the response status code will be <b>404 Not Found</b>, otherwise the resource's JSON encoding is returned and the status code will be <b>200 OK</b>.</p>
+  
+  <h3>POST requests</h3>
+  <div class="centered">
+    <table id="post_requests">
+      <thread>
+        <tr>
+          <th>Path</th>
+          <th>Parameters</th>
+          <th>Result</th>
+        </tr>
+        <tr>
+          <td>/user/</td>
+          <td>Only login request</td>
+          <td>Test the users credentials</td>
+        </tr>
+      </thread>
+    </table>
+  </div>
 </body>
 </html>
