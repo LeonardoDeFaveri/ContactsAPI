@@ -62,6 +62,14 @@ public class ErrorHandler {
                 error = getDelitionUnauthorizedError();
                 break;
 
+            case ErrorCodes.DELETION_FAILED:
+                error = getDeletionFailedError();
+                break;
+
+            case ErrorCodes.DELETION_NOT_ALLOWED:
+                error = getDeletionNotAllowedError();
+                break;
+
             default:
                 error = new JSONObject();
                 break;
@@ -290,6 +298,37 @@ public class ErrorHandler {
         error.put(ErrorKeys.CODE, ErrorCodes.DELETION_UNAUTHORIZED);
         error.put(ErrorKeys.MESSAGE, "You cannot delete a resource that doesn't belong to you");
         error.put(ErrorKeys.SUGGESTION, "Try checking the resource identifier provided or try logging in with the right credentials");
+        return error;
+    }
+
+    /**
+     * L'eliminazione di una risorsa non è andata a buon fine.
+     * 
+     * @return messaggio di errore
+     */
+    private static JSONObject getDeletionFailedError() {
+        JSONObject error = new JSONObject();
+        error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
+        error.put(ErrorKeys.TITLE, "Resource delition failed");
+        error.put(ErrorKeys.CODE, ErrorCodes.DELETION_FAILED);
+        error.put(ErrorKeys.MESSAGE, "The resource delition has failed");
+        error.put(ErrorKeys.SUGGESTION, "Try checking the resource identifier provided or retry later");
+        return error;
+    }
+
+    /**
+     * L'eliminazione della risorsa non può essere effettuata
+     * in quanto la risorsa non può essere eliminata.
+     * 
+     * @return messaggio di errore
+     */
+    private static JSONObject getDeletionNotAllowedError() {
+        JSONObject error = new JSONObject();
+        error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
+        error.put(ErrorKeys.TITLE, "Resource delition not allowed");
+        error.put(ErrorKeys.CODE, ErrorCodes.DELETION_NOT_ALLOWED);
+        error.put(ErrorKeys.MESSAGE, "It is not possible to delete this resource");
+        error.put(ErrorKeys.SUGGESTION, "Try checking the resource identifier provided");
         return error;
     }
 }

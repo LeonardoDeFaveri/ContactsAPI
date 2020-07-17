@@ -152,11 +152,13 @@ public class ContactServlet extends HttpServlet {
         }
         break;
       
+      // Non è stato specificato nessun componente di primo livello nell'URL
       case FirstLevelValues.NOT_PROVIDED:
         resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         out.write(ErrorHandler.getError(ErrorCodes.MISSING_URL_COMPONENT).toString());
         break;
 
+      // Il componente di primo livello specificato è sbagliato
       default:
         resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         out.write(ErrorHandler.getError(ErrorCodes.WRONG_URL_COMPONENT).toString());
@@ -447,13 +449,12 @@ public class ContactServlet extends HttpServlet {
         }
         break;
 
-      // Non è stato specificato nessun componente di primo livello nell'URL
+      
       case FirstLevelValues.NOT_PROVIDED:
         resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         out.write(ErrorHandler.getError(ErrorCodes.MISSING_URL_COMPONENT).toString());
         break;
 
-      // Il componente di primo livello specificato è sbagliato
       default:
         resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         out.write(ErrorHandler.getError(ErrorCodes.WRONG_URL_COMPONENT).toString());
@@ -618,9 +619,7 @@ public class ContactServlet extends HttpServlet {
         }
         break;
 
-      /**
-       * Modifica del nome del gruppo.
-       */
+      // Modifica del nome del gruppo.
       case FirstLevelValues.GROUPS:
       try {
           int groupId = Integer.parseInt(pathTokens.get(1));
@@ -645,13 +644,11 @@ public class ContactServlet extends HttpServlet {
         }
         break;
     
-      // Non è stato specificato nessun componente di primo livello nell'URL
       case FirstLevelValues.NOT_PROVIDED:
         resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         out.write(ErrorHandler.getError(ErrorCodes.MISSING_URL_COMPONENT).toString());
         break;
 
-      // Il componente di primo livello specificato è sbagliato
       default:
         resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         out.write(ErrorHandler.getError(ErrorCodes.WRONG_URL_COMPONENT).toString());
@@ -699,7 +696,7 @@ public class ContactServlet extends HttpServlet {
               resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
             } else {
               resp.setStatus(HttpServletResponse.SC_CONFLICT);
-              out.write(ErrorHandler.getError(ErrorCodes.DATA_NOT_MODIFIED).toString());
+              out.write(ErrorHandler.getError(ErrorCodes.DELETION_FAILED).toString());
             } 
           } else {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -713,8 +710,108 @@ public class ContactServlet extends HttpServlet {
           out.write(ErrorHandler.getError(ErrorCodes.MISSING_URL_COMPONENT).toString());
         }
         break;
+
+      case FirstLevelValues.CONTACTS:
+        try {
+          int contactId = Integer.parseInt(pathTokens.get(1));
+          Contact contact = this.dbManager.getContact(contactId, user);
+          if (contact == null) {
+            resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+          } else if (user.equals(contact.getAssociatedUser())) {
+            resp.setStatus(HttpServletResponse.SC_CONFLICT);
+            out.write(ErrorHandler.getError(ErrorCodes.DELETION_NOT_ALLOWED).toString());
+          } else {
+            try {
+              switch (pathTokens.get(2)) {
+                case SecondLevelValues.PHONE_NUMBERS:
+                  try {
+                    // Eliminazione di un solo numero di telefono
+                    int numberId = Integer.parseInt(pathTokens.get(3));
+                    if (this.dbManager.getPhoneNumber(numberId) == null) {
+                      resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                    } else {
+                      if (this.dbManager.deletePhoneNumber(contactId, numberId)) {
+                        resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
+                      } else {
+                        resp.setStatus(HttpServletResponse.SC_CONFLICT);
+                        out.write(ErrorHandler.getError(ErrorCodes.DELETION_FAILED).toString());
+                      }
+                    }
+                  } catch (NumberFormatException ex) {
+                    resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                    out.write(ErrorHandler.getError(ErrorCodes.WRONG_OBJECT_ID).toString());
+                  } catch (IndexOutOfBoundsException ex) {
+                    // Eliminazione di tutti i numeri di telefono di un contatto
+                    if (this.dbManager.deletePhoneNumbers(contactId)) {
+                      resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
+                    } else {
+                      resp.setStatus(HttpServletResponse.SC_CONFLICT);
+                      out.write(ErrorHandler.getError(ErrorCodes.DELETION_FAILED).toString());
+                    }
+                  }
+                  break;
+
+                case SecondLevelValues.EMAILS:
+                  try {
+                    // Eliminazione di un indirizzo email
+                    String base64Email = pathTokens.get(3);
+                    String emailAddress = new String(Base64.getDecoder().decode(base64Email), StandardCharsets.UTF_8);
+                    if (this.dbManager.getEmail(emailAddress) == null) {
+                      resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                    } else {
+                      if (this.dbManager.deleteEmail(contactId, emailAddress)) {
+                        resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
+                      } else {
+                        resp.setStatus(HttpServletResponse.SC_CONFLICT);
+                        out.write(ErrorHandler.getError(ErrorCodes.DELETION_FAILED).toString());
+                      }
+                    }
+                  } catch (NumberFormatException ex) {
+                    resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                    out.write(ErrorHandler.getError(ErrorCodes.WRONG_OBJECT_ID).toString());
+                  } catch (IndexOutOfBoundsException ex) {
+                    // Eliminazione di tutti gli indirizzi email di un contatto
+                    if (this.dbManager.deleteEmails(contactId)) {
+                      resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
+                    } else {
+                      resp.setStatus(HttpServletResponse.SC_CONFLICT);
+                      out.write(ErrorHandler.getError(ErrorCodes.DELETION_FAILED).toString());
+                    }
+                  }
+                  break;
+              
+                default:
+                  resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                  out.write(ErrorHandler.getError(ErrorCodes.WRONG_URL_COMPONENT).toString());
+                  break;
+              }
+            } catch (IndexOutOfBoundsException ex) {
+              // Eliminazione di un contatto
+              if (this.dbManager.deleteContact(contactId)) {
+                resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
+              } else {
+                resp.setStatus(HttpServletResponse.SC_CONFLICT);
+                out.write(ErrorHandler.getError(ErrorCodes.DELETION_FAILED).toString());
+              }
+            }
+          }
+        } catch (NumberFormatException ex) {
+          resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+          out.write(ErrorHandler.getError(ErrorCodes.WRONG_OBJECT_ID).toString());
+        } catch (IndexOutOfBoundsException ex) {
+          resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+          out.write(ErrorHandler.getError(ErrorCodes.MISSING_URL_COMPONENT).toString());
+        }
+        break;
     
+      case FirstLevelValues.NOT_PROVIDED:
+        resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+        out.write(ErrorHandler.getError(ErrorCodes.MISSING_URL_COMPONENT).toString());
+        break;
+
       default:
+        resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+        out.write(ErrorHandler.getError(ErrorCodes.WRONG_URL_COMPONENT).toString());
         break;
     }
 

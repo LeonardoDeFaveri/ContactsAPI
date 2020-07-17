@@ -19,4 +19,6 @@ public interface ErrorCodes {
     public final int DATA_NOT_MODIFIABLE = 12;
     public final int DATA_NOT_MODIFIED = 13;
     public final int DELETION_UNAUTHORIZED = 14;
+    public final int DELETION_FAILED = 15;
+    public final int DELETION_NOT_ALLOWED = 16;
 }

@@ -262,7 +262,6 @@ public class DatabaseManager {
      * 
      * @param id id del contatto per il quale estrarre gli
      *      indirizzi email
-     * @param user utente che sta eseguendo la query
      * 
      * @return indirizzi email associati al contatto se ne sono
      *      stati trovati, altrimenti un'array vuoto
@@ -294,6 +293,32 @@ public class DatabaseManager {
             System.err.println(ex.getMessage());
         }
         return emails;
+    }
+
+    /**
+     * Estrae un indirizzo email.
+     * 
+     * @param emailAddress indirizzo email da estrarre
+     * 
+     * @return indirizz email se è stato trovato, altrimenti null
+     */
+    public Email getEmail (String emailAddress) {
+        Email email = null;
+        try {
+            PreparedStatement query = this.connection
+                .prepareStatement("SELECT * FROM emails WHERE email = ?");
+            query.setString(1, emailAddress);
+            ResultSet result = query.executeQuery();
+            if (result.first()) {
+                email = new Email(
+                    result.getString(EmailLabels.EMAIL),
+                    result.getString(EmailLabels.DESCRIPTION)
+                );
+            }
+        } catch (SQLException ex) {
+            System.err.println(ex.getMessage());
+        }
+        return email;
     }
 
     /**
@@ -819,8 +844,7 @@ public class DatabaseManager {
 //--------------------------------------------------------------------------------------------
 
     /**
-     * Elimina un utente e tutte le risorsa ad esso associate
-     * dal database.
+     * Elimina un utente e tutte le risorsa ad esso associate.
      * 
      * @param userEmail indirizzo email dell'utente da eliminare
      * 
@@ -832,6 +856,107 @@ public class DatabaseManager {
                 .prepareStatement("DELETE FROM users WHERE email = ?");
             query.setString(1, userEmail);
             return query.executeUpdate() == 1;
+        } catch (SQLException ex) {
+            System.err.println(ex.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Elimina un contatto e tutte le risorse ad esso associate.
+     * 
+     * @param contactId id del contatto da eliminare
+     * 
+     * @return true se il contatto è stato eliminato, altrimenti false
+     */
+    public boolean deleteContact(int contactId) {
+        try {
+            PreparedStatement query = this.connection
+                .prepareStatement("DELETE FROM contacts WHERE id = ?");
+            query.setInt(1, contactId);
+            return query.executeUpdate() == 1;
+        } catch (SQLException ex) {
+            System.err.println(ex.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Elimina un numero di telefono associato ad un contatto.
+     * 
+     * @param contactId id del contatto per il quale eliminare il numero di telefono
+     * @param numberId id del numero di telefono da eliminare
+     * 
+     * @return true se il numero di telefono è stato eliminato, altrimenti false
+     */
+    public boolean deletePhoneNumber(int contactId, int numberId) {
+        try {
+            PreparedStatement query = this.connection
+                .prepareStatement("DELETE FROM contacts_numbers WHERE contact_id = ? AND phone_id = ?");
+            query.setInt(1, contactId);
+            query.setInt(2, numberId);
+            return query.executeUpdate() == 1;
+        } catch (SQLException ex) {
+            System.err.println(ex.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Elimina tutti i numeri di telefono associati ad un contatto.
+     * 
+     * @param contactId id del contatto per il quale eliminare i numeri di telefono
+     * 
+     * @return true se i numeri di telefono sono stati eliminati, altrimenti false
+     */
+    public boolean deletePhoneNumbers(int contactId) {
+        try {
+            PreparedStatement query = this.connection
+                .prepareStatement("DELETE FROM contacts_numbers WHERE contact_id = ?");
+            query.setInt(1, contactId);
+            return query.executeUpdate() > 0;
+        } catch (SQLException ex) {
+            System.err.println(ex.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Elimina un indirizzo email associato ad un contatto.
+     * 
+     * @param contactId id del contatto per il quale eliminare l'indirizzo
+     *      email
+     * @param email indirizzo email da eliminare
+     * 
+     * @return true se l'indirizzo email è stato eliminato, altrimenti false
+     */
+    public boolean deleteEmail(int contactId, String email) {
+        try {
+            PreparedStatement query = this.connection
+                .prepareStatement("DELETE FROM contacts_email WHERE contact_id = ? AND email = ?");
+            query.setInt(1, contactId);
+            query.setString(2, email);
+            return query.executeUpdate() == 1;
+        } catch (SQLException ex) {
+            System.err.println(ex.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Elimina tutti gli indirizzo email associati ad un contatto.
+     * 
+     * @param contactId id del contatto per il quali eliminare gli
+     *      indirizzo email
+     * 
+     * @return true se gli indirizzo email sono stati eliminati, altrimenti false
+     */
+    public boolean deleteEmails(int contactId) {
+        try {
+            PreparedStatement query = this.connection
+                .prepareStatement("DELETE FROM contacts_email WHERE contact_id = ?");
+            query.setInt(1, contactId);
+            return query.executeUpdate() > 0;
         } catch (SQLException ex) {
             System.err.println(ex.getMessage());
             return false;
