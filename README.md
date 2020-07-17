@@ -18,7 +18,7 @@
   <p>When data needs to be transfered into the HTTP request body (i.e. POST, PUT requests) it must be defined using the <a href="https://www.json.org" target="_blank">JSON</a> language.</p>
 
   <h3>Authentication</h3>
-  <p>To make a request the user must be authenticated by the web service server. In order to do so, the user must provide its credentials into the HTTP <b>Authorization</b> header. The header type is Basic and the credentials have to be specified after the "Basic" string separeted by a column (username:password). This string (without "Basic") must be encoded with a base 64 encoding and the password mustn't be sent in clear, but its digest has to be provided, instead.</p>
+  <p>To make a request the user must be authenticated by the web service server. In order to do so, the user must provide its credentials into the HTTP <b>Authorization</b> header. The header type is Basic and the credentials have to be specified after the "Basic" string separeted by a column (username:password). This string (without "Basic") must be encoded with a base 64 encoding and the password mustn't be sent in clear, but its digest, calculated with a <b>SHA-256</b> function, has to be provided, instead.</p>
 
   <h3>Allowed HTTP methods</h3>
   <ul>
