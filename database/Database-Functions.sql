@@ -233,7 +233,7 @@ BEGIN
 END //
 DELIMITER ;
 
--- INSERIMENTI ---------------------------------------------------------------------------------
+-- INSERIMENTI -----------------------------------------------------------------------------------
 
 /**
  *  insert_user crea un nuovo utente e il contatto ad
@@ -479,7 +479,7 @@ BEGIN
 END //
 DELIMITER ;
 
--- AGGIORNAMENTI -------------------------------------------------------------------------------
+-- AGGIORNAMENTI ---------------------------------------------------------------------------------
 
 /**
  * update_contact_phone_number sostituisce il numero di telefono

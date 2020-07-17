@@ -1,0 +1,9 @@
+.centered {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+table {
+    width: 100%;
+}

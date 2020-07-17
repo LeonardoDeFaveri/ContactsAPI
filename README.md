@@ -1,16 +1,7 @@
 <DOCTYPE html>
 <html>
 <head>
-  <style>
-    .centered {
-      display: flex;
-      flex-direction: row;
-      justify-content: center;
-    }
-    table {
-      width: 100%;
-    }
-  </style>
+  <link rel="stylesheet" href="READmeStyle.css">
 </head>
 <body>
   <h1>ContactsAPI</h1>
