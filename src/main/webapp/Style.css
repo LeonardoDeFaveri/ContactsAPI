@@ -1,5 +1,7 @@
 body {
     text-align: justify;
+    font-family: 'Roboto';
+    font-size: medium;
 }
 
 .centered {

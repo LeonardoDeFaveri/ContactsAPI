@@ -1,7 +1,7 @@
 <DOCTYPE html>
 <html>
 <head>
-  <link rel="stylesheet" href="Style.css">
+  <link rel="stylesheet" href="src/main/webapp/Style.css">
 </head>
 <body>
   <h1>ContactsAPI</h1>
@@ -93,7 +93,7 @@
         <tr>
           <td>/user/</td>
           <td>Only login request</td>
-          <td>Test the users credentials</td>
+          <td>Test the user's credentials</td>
         </tr>
         <tr>
           <td>/user/</td>

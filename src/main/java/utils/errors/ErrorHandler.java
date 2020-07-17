@@ -104,7 +104,7 @@ public class ErrorHandler {
     private static JSONObject getMissingAuthenticationError() {
         JSONObject error = new JSONObject();
         error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
-        error.put(ErrorKeys.TITLE, "Missing Authenticatio");
+        error.put(ErrorKeys.TITLE, "Missing Authentication");
         error.put(ErrorKeys.CODE, ErrorCodes.MISSING_AUTHENTICATION);
         error.put(ErrorKeys.MESSAGE, "Authentication parameters have not been provided");
         error.put(ErrorKeys.SUGGESTION,
