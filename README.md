@@ -108,10 +108,36 @@
         <tr>
           <td>/contacts/{contactId}/phoneNumbers/</td>
           <td>
-            <b>contactId:</b> id of a specific user <br>
+            <b>contactId:</b> id of a specific user <hr>
             Phone number definition
           </td>
-          <td>Creates a new phone number and associates it to the contact identified by the id</td>
+          <td>Creates a new phone number and associates it to the contact identified by the id, but only if the contact belongs to the user who is making the request</td>
+        </tr>
+        <tr>
+          <td>/contacts/{contactId}/emails/</td>
+          <td>
+            <b>contactId:</b> id of a specific user <hr>
+            Email definition
+          </td>
+          <td>Creates a new email address and associates it to the contact identified by the id, but only if the contact belongs to the user who is making the request</td>
+        </tr>
+        <tr>
+          <td>/groups/</td>
+          <td>Group definition</td>
+          <td>Creates a new group, but only if the group owner specified is the same user that is making the request</td>
+        </tr>
+        <tr>
+          <td>/groups/{groupId}/contacts/</td>
+          <td>
+            <b>groupId:</b> id of a specific group <hr>
+            List of contacts to insert into the group
+          </td>
+          <td>Inserts some contacts into a specific group, but only if the group and the contacts belong to the user who is making the request</td>
+        </tr>
+        <tr>
+          <td>/calls/</td>
+          <td>Call definition</td>
+          <td>Inserts a call made by a contact, but only if that contact is associated to the user who is making the request</td>
         </tr>
       </tbody>
     </table>

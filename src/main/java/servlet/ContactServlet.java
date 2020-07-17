@@ -343,8 +343,10 @@ public class ContactServlet extends HttpServlet {
             resp.setStatus((HttpServletResponse.SC_BAD_REQUEST));
             out.write(ErrorHandler.getError(ErrorCodes.WRONG_SYNTAX).toString());
           } else {
-            if (contact2.getOwner().equals(user)
-                && (contact2.getAssociatedUser() == null || contact2.getAssociatedUser().equals(user))) {
+            if (
+              user.equals(contact2.getOwner()) &&
+              (contact2.getAssociatedUser() == null || user.equals(contact2.getAssociatedUser()))
+            ) {
               int id = this.dbManager.insertContact(contact2);
               if (id == -1) {
                 resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -416,7 +418,7 @@ public class ContactServlet extends HttpServlet {
             resp.setStatus((HttpServletResponse.SC_BAD_REQUEST));
             out.write(ErrorHandler.getError(ErrorCodes.WRONG_SYNTAX).toString());
           } else {
-            if (group.getOwner().equals(user)) {
+            if (user.equals(group.getOwner())) {
               int id = this.dbManager.insertGroup(group);
               if (id == -1) {
                 resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
