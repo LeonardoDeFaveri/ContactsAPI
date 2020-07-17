@@ -1,7 +1,7 @@
 <DOCTYPE html>
 <html>
 <head>
-  <link rel="stylesheet" href="READmeStyle.css">
+  <link rel="stylesheet" href="Style.css">
 </head>
 <body>
   <h1>ContactsAPI</h1>
@@ -88,12 +88,32 @@
           <th>Parameters</th>
           <th>Result</th>
         </tr>
+      </thread>
+      <tbody>
         <tr>
           <td>/user/</td>
           <td>Only login request</td>
           <td>Test the users credentials</td>
         </tr>
-      </thread>
+        <tr>
+          <td>/user/</td>
+          <td>Contact definition</td>
+          <td>Creates a new user and the associated contact</td>
+        </tr>
+        <tr>
+          <td>/contacts/</td>
+          <td>Contact definition</td>
+          <td>Creates a new contact and sets as owner the user who is making the reqest</td>
+        </tr>
+        <tr>
+          <td>/contacts/{contactId}/phoneNumbers/</td>
+          <td>
+            <b>contactId:</b> id of a specific user <br>
+            Phone number definition
+          </td>
+          <td>Creates a new phone number and associates it to the contact identified by the id</td>
+        </tr>
+      </tbody>
     </table>
   </div>
 </body>

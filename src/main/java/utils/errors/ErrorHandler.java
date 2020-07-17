@@ -70,6 +70,10 @@ public class ErrorHandler {
                 error = getDeletionNotAllowedError();
                 break;
 
+            case ErrorCodes.INACCESSIBLE_OR_NON_EXISTING_RESOURCE:
+                error = getInaccessibleOrNonExistingResourceError();
+                break;
+
             default:
                 error = new JSONObject();
                 break;
@@ -77,12 +81,6 @@ public class ErrorHandler {
         return error;
     }
 
-    /**
-     * Si è verificato un errore che non ha permesso di portare
-     * a termine con successo la registrazione di un nuovo utente.
-     * 
-     * @return messaggio di errore
-     */
     private static JSONObject getRegistrationFailureError() {
         JSONObject error = new JSONObject();
         error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
@@ -93,12 +91,6 @@ public class ErrorHandler {
         return error;
     }
 
-    /**
-     * Si sta tentando di registrare un nuovo utente con un
-     * indirizzo email già associato ad un utente.
-     * 
-     * @return messaggio di errore
-     */
     private static JSONObject getDuplicatedUserError() {
         JSONObject error = new JSONObject();
         error.put(ErrorKeys.TYPE, ErrorTypes.WARNING);
@@ -109,13 +101,6 @@ public class ErrorHandler {
         return error;
     }
 
-    /**
-     * Nella richiesta non sono stati forniti i parametri necessari
-     * ad autenticare l'utente, oppure sono stati forniti ma il campo
-     * 'Authentication' di è di tipo 'Basic'.
-     * 
-     * @return messaggio di errore
-     */
     private static JSONObject getMissingAuthenticationError() {
         JSONObject error = new JSONObject();
         error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
@@ -127,11 +112,6 @@ public class ErrorHandler {
         return error;
     }
 
-    /**
-     * Il corpo della richiesta contiene degli errori nella sintassi.
-     * 
-     * @return messaggio di errore
-     */
     private static JSONObject getWrongSyntaxError() {
         JSONObject error = new JSONObject();
         error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
@@ -142,11 +122,6 @@ public class ErrorHandler {
         return error;
     }
 
-    /**
-     * Non è stato possibile inserire uno o più valori.
-     * 
-     * @return messaggio di errore
-     */
     private static JSONObject getInsertionFailureError() {
         JSONObject error = new JSONObject();
         error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
@@ -157,11 +132,6 @@ public class ErrorHandler {
         return error;
     }
 
-    /**
-     * L'URL della richiesta non è completo.
-     * 
-     * @return messaggio di errore
-     */
     private static JSONObject getMissingURLComponent() {
         JSONObject error = new JSONObject();
         error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
@@ -172,11 +142,6 @@ public class ErrorHandler {
         return error;
     }
 
-    /**
-     * Nell'url sono presenti componenti che non sono gestiti.
-     * 
-     * @return messaggio di errore
-     */
     private static JSONObject getWrongURLComponentError() {
         JSONObject error = new JSONObject();
         error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
@@ -187,11 +152,6 @@ public class ErrorHandler {
         return error;
     }
 
-    /**
-     * Il content type è della richiesta è errato.
-     * 
-     * @return messaggio di errore
-     */
     private static JSONObject getInvalidContentTypeError() {
         JSONObject error = new JSONObject();
         error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
@@ -202,11 +162,6 @@ public class ErrorHandler {
         return error;
     }
 
-    /**
-     * L'autenticazione dell'utente è fallita.
-     * 
-     * @return messaggio di errore
-     */
     private static JSONObject getFailedAuthenticationError() {
         JSONObject error = new JSONObject();
         error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
@@ -217,13 +172,6 @@ public class ErrorHandler {
         return error;
     }
 
-    /**
-     * Le credenziali con le quali si è autenticato l'utente non
-     * sono le stesse presenti nel campo 'owner' o, se specificato,
-     * nel campo 'associateUser'.
-     * 
-     * @return messaggio di errore
-     */
     private static JSONObject getCredentialsMismatchError() {
         JSONObject error = new JSONObject();
         error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
@@ -236,12 +184,6 @@ public class ErrorHandler {
         return error;
     }
 
-    /**
-     * Nell'URL della richiesta è stato fornito un valore che non
-     * può essere tradotto in un id numerico.
-     * 
-     * @return messaggio di errore
-     */
     private static JSONObject getWrongObjectId() {
         JSONObject error = new JSONObject();
         error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
@@ -252,13 +194,6 @@ public class ErrorHandler {
         return error;
     }
 
-    /**
-     * È stata inviata un richiesta di modifica di una risorsa
-     * (metodo PUT), ma la risorsa modificata coincide con la risorsa
-     * originale.
-     * 
-     * @return messaggio di errore
-     */
     private static JSONObject getDataNotModifiableError() {
         JSONObject error = new JSONObject();
         error.put(ErrorKeys.TYPE, ErrorTypes.WARNING);
@@ -269,11 +204,6 @@ public class ErrorHandler {
         return error;
     }
 
-    /**
-     * La modifica di una risorsa non è andata a buon fine.
-     * 
-     * @return messaggio di errore
-     */
     private static JSONObject getDataNotModifiedError() {
         JSONObject error = new JSONObject();
         error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
@@ -284,13 +214,6 @@ public class ErrorHandler {
         return error;
     }
 
-    /**
-     * L'eliminazione di una risorsa non è andata a buon fine
-     * perchè la risorsa non appartiene all'utente che sta cercando
-     * di eliminarla.
-     * 
-     * @return messaggio di errore
-     */
     private static JSONObject getDelitionUnauthorizedError() {
         JSONObject error = new JSONObject();
         error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
@@ -301,11 +224,6 @@ public class ErrorHandler {
         return error;
     }
 
-    /**
-     * L'eliminazione di una risorsa non è andata a buon fine.
-     * 
-     * @return messaggio di errore
-     */
     private static JSONObject getDeletionFailedError() {
         JSONObject error = new JSONObject();
         error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
@@ -316,18 +234,23 @@ public class ErrorHandler {
         return error;
     }
 
-    /**
-     * L'eliminazione della risorsa non può essere effettuata
-     * in quanto la risorsa non può essere eliminata.
-     * 
-     * @return messaggio di errore
-     */
     private static JSONObject getDeletionNotAllowedError() {
         JSONObject error = new JSONObject();
         error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
         error.put(ErrorKeys.TITLE, "Resource delition not allowed");
         error.put(ErrorKeys.CODE, ErrorCodes.DELETION_NOT_ALLOWED);
         error.put(ErrorKeys.MESSAGE, "It is not possible to delete this resource");
+        error.put(ErrorKeys.SUGGESTION, "Try checking the resource identifier provided");
+        return error;
+    }
+
+    private static JSONObject getInaccessibleOrNonExistingResourceError() {
+        JSONObject error = new JSONObject();
+        error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
+        error.put(ErrorKeys.TITLE, "Inaccessible or non-existing resource");
+        error.put(ErrorKeys.CODE, ErrorCodes.INACCESSIBLE_OR_NON_EXISTING_RESOURCE);
+        error.put(ErrorKeys.MESSAGE, 
+            "It is not possible to access this resource either because it doesn't exist or because the you don't have access to it");
         error.put(ErrorKeys.SUGGESTION, "Try checking the resource identifier provided");
         return error;
     }
