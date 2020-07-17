@@ -253,6 +253,7 @@
   <p>When a resource is successfully deleted, <b>204 No Content</b> is returned.</p>
 
   <h3>Resources properties</h3>
+  <p>The json representation of all the resources uses the properties name as the key.</p>
   <h4>User</h4>
   <div class="centered">
     <table class="resource_properties">
@@ -274,6 +275,7 @@
       </tbody>
     </table>
   </div>
+  <p>Except when registering a new user, <code>password</code> field can be omitted.</p>
 
   <h4>PhoneNumber</h4>
   <div class="centered">
@@ -312,6 +314,8 @@
       </tbody>
     </table>
   </div>
+  <p>The country code must be provided without the <code>+</code> character.</p>
+  <p>When creating a phone number all the fields must be provided except for <code>id</code> and <code>description</code>.</p>
 
   <h4>Email</h4>
   <div class="centered">
@@ -380,6 +384,8 @@
       </tbody>
     </table>
   </div>
+  <p>To the fields <code>owner</code> and <code>associateUser</code> it must be assigned an object of type <code>User</code>. In the same way to <code>phoneNumbers</code> and <code>emails</code> it must be assigned and array of objects of type <code>PhoneNumber</code> and <code>Email</code>.</p> 
+  <p>When creating a new contact <code>firstName</code>, <code>familyName</code> and <code>owner</code> fields must be specified, while the other can be null. Of course, when creating a new user the <code>id</code> field doesn't have a value.</p>
 
   <h4>Group</h4>
   <div class="centered">
@@ -410,6 +416,8 @@
       </tbody>
     </table>
   </div>
+  <p>As before, <code>owner</code> is an object of type <code>User</code> and <code>contacts</code> is an array of objects of type <code>Contact</code>.</p>
+  <p>When creating a group values for <code>name</code> and <code>owner</code> fields must be provided.</p>
 
   <h4>Call</h4>
   <div class="centered">
@@ -453,8 +461,9 @@
     </table>
   </div>
 
-  <h3>JSON syntax</h3>
+  <h3>Special requests</h3>
   <h4>Login</h4>
+  <p>When the user wants to send a request to just test its credentials it has to send a POST request in which the user's credentials are provided via the <b>Authorization</b> header and the body must contain this json code:</p>
 
   ```json
   {
@@ -462,73 +471,28 @@
   }
   ```
 
-  <h4>User</h4>
-
-  ```json
-  {
-    "user": {
-      "email": "...",
-      "password": "..."
-    }
-  }
-  ```
-
-  <p>Except when registering a new user, <code>password</code> field can be omitted.</p>
-  
-  <h4>Contact</h4>
+  <h4>Registration</h4>
+  <p>When registering a new user, credentials don't have to be inserted into the <b>Authorization</b> header, instead, In the body of the request, it must be defined a new contact that has the user's credentials as value for the <code>owner</code> and <code>associatedUser</code> fields.</p>
 
   ```json
   {
     "contact": {
-      "id": ...,
-      "firstName": "...",
-      "familyName": "...",
-      "secondName": "...",
-      "owner": {},
-      "associatedUser": {},
-      "phoneNumbers": [],
-      "emails": []
+      "firstName": "Gennaro",
+      "familyNam": "Rossi",
+      "secondName": null,
+      "owner": {
+        "email": "gennaro.rossi@mail.com",
+        "password": "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8"
+      },
+      "associatedUser": {
+        "email": "gennaro.rossi@mail.com",
+        "password": "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8"
+      },
+      "phoneNumber": [],
+      "emails":[]
     }
   }
   ```
-
-  <p>To the fields <code>owner</code> and <code>associateUser</code> it must be assigned an object of type <code>User</code>. In the same way to <code>phoneNumbers</code> and <code>emails</code> it must be assigned and array of objects of type <code>PhoneNumber</code> and <code>Email</code>.</p> 
-  <p>When creating a new contact <code>firstName</code>, <code>familyName</code> and <code>owner</code> fields must be specified, while the other can be null. Of course, when creating a new user the <code>id</code> field doesn't have a value.</p>
-  
-  <h4>Group</h4>
-
-  ```json
-  {
-    "group": {
-      "id": ...,
-      "name": "...",
-      "owner": {},
-      "contacts": []
-    }
-  }
-  ```
-
-  <p>As before, <code>owner</code> is an object of type <code>User</code> and <code>contacts</code> is an array of objects of type <code>Contact</code>.</p>
-  <p>When creating a group values for <code>name</code> and <code>owner</code> fields must be provided.</p>
-
-  <h4>PhoneNumber</h4>
-
-  ```json
-  {
-    "phoneNumber": {
-      "id": ...,
-      "countryCode": "...",
-      "areaCode": "...",
-      "prefix": "...",
-      "phoneLine": "...",
-      "description": "..."
-    }
-  }
-  ```
-
-  <p><code>countryCode</code> is the national identified (e.g. country code for Italy is +39) and it must be provided without the <code>+</code> character. Then reading the number from left to right, <code>areaCode</code> and <code>prefix</code> are the first 2 groups of 3 digits and <code>phoneLine</code> holds the last 4 digits.</p>
-
-  <p>When creating a phone number all the fields must mandatorily be provided except for <code>id</code> and <code>description</code>.</p>
 
   <h3>Errors</h3>
   <p>If the user tries to modify a resource that doesn't belongs to him a <b>401 Unauthorized</b> status code is returned.</p>
