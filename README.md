@@ -15,7 +15,7 @@
   <p>It is important to remember that the web service doesn't support the HTTPS protocol, so it is not allowed to use <i>https://truecloud.ddns.net:9000/contacts/api/</i> as the endpoint.</p>
 
   <h3>Data transmission</h3>
-  <p>When data needs to be transfered into the HTTP request body (i.e. POST, PUT requests) it must be defined using the <a href="https://www.json.org" target="_blank">JSON</a> language.</p>
+  <p>When data needs to be transfered into the HTTP request body (e.g. POST, PUT requests) it must be defined using the <a href="https://www.json.org" target="_blank">JSON</a> language.</p>
 
   <h3>Authentication</h3>
   <p>To make a request the user must be authenticated by the web service server. In order to do so, the user must provide its credentials into the HTTP <b>Authorization</b> header. The header type is Basic and the credentials have to be specified after the "Basic" string separeted by a column (username:password). This string (without "Basic") must be encoded with a base 64 encoding and the password mustn't be sent in clear, but its digest, calculated with a <b>SHA-256</b> function, has to be provided, instead.</p>
@@ -30,7 +30,7 @@
   </ul>
   <h3>GET requests</h3>
   <div class="centered">
-    <table id="get_requests">
+    <table class="requests" id="get_requests">
       <thead>
         <tr>
           <th>Path</th>
@@ -77,11 +77,11 @@
       </tbody>
     </table>
   </div>
-  <p>If the id provided doesn't identify any resource or if the resource identified cannot be returned (i.e. if the resource belongs to another user) then the response status code will be <b>404 Not Found</b>, otherwise the resource's JSON encoding is returned and the status code will be <b>200 OK</b>.</p>
+  <p>If the id provided doesn't identify any resource or if the resource identified cannot be returned (e.g. if the resource belongs to another user) then the response status code will be <b>404 Not Found</b>, otherwise the resource's JSON encoding is returned and the status code will be <b>200 OK</b>.</p>
   
   <h3>POST requests</h3>
   <div class="centered">
-    <table id="post_requests">
+    <table class="requests" id="post_requests">
       <thread>
         <tr>
           <th>Path</th>
@@ -147,7 +147,7 @@
   
   <h3>PUT requests</h3>
   <div class="centered">
-    <table id="put_requests">
+    <table class="requests" id="put_requests">
       <thead>
         <tr>
           <th>Path</th>
@@ -199,7 +199,7 @@
 
   <h3>DELETE requests</h3>  
   <div class="centered">
-    <table>
+    <table class="requests" id="delete_requests">
       <thead>
         <tr>
           <th>Path</th>
@@ -252,12 +252,213 @@
   </div>
   <p>When a resource is successfully deleted, <b>204 No Content</b> is returned.</p>
 
+  <h3>Resources properties</h3>
+  <h4>User</h4>
+  <div class="centered">
+    <table class="resource_properties">
+      <thead>
+        <tr>
+          <th>Property</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>email</td>
+          <td>The emaild used to identify le user</td>
+        </tr>
+        <tr>
+          <td>password</td>
+          <td>The digest calculated with a SHA-256 function of the password used by the user to authenticate</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h4>PhoneNumber</h4>
+  <div class="centered">
+    <table class="resource_properties">
+      <thead>
+        <tr>
+          <th>Property</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>id</td>
+          <td>The resource identifier of the phone number</td>
+        </tr>
+        <tr>
+          <td>countryCode</td>
+          <td>The national identifier of the phone number (e.g. for Italy it is +39)</td>
+        </tr>
+        <tr>
+          <td>areaCode</td>
+          <td>Reading the phone number from left to right this represent the first 3 digits</td>
+        </tr>
+        <tr>
+          <td>prefix</td>
+          <td>Reading the phone number from left to right this represent the second group of 3 digits</td>
+        </tr>
+        <tr>
+          <td>phoneLine</td>
+          <td>The last 4 digits of the phone number</td>
+        </tr>
+        <tr>
+          <td>description</td>
+          <td>A word or a short phrase that describes the phone number (e.g. Office, school, house, ...)</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h4>Email</h4>
+  <div class="centered">
+    <table class="resource_properties">
+      <thead>
+        <tr>
+          <th>Property</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>email</td>
+          <td>The email address</td>
+        </tr>
+        <tr>
+          <td>description</td>
+          <td>A word or a short phrase that describes the email address (e.g. Office, school, personal ...)</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h4>Contact</h4>
+  <div class="centered">
+    <table class="resource_properties">
+      <thead>
+        <tr>
+          <th>Property</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>id</td>
+          <td>The resource identifier of the contact</td>
+        </tr>
+        <tr>
+          <td>firstName</td>
+          <td>The first name of the contact</td>
+        </tr>
+        <tr>
+          <td>familyName</td>
+          <td>The family name or surname of the contact</td>
+        </tr>
+        <tr>
+          <td>secondName</td>
+          <td>The second name of the contact</td>
+        </tr>
+        <tr>
+          <td>owner</td>
+          <td>The user who this contact belongs to</td>
+        </tr>
+        <tr>
+          <td>associatedUser</td>
+          <td>If this contact is the representation of a user this property holds the user's credentials</td>
+        </tr>
+        <tr>
+          <td>phoneNumbers</td>
+          <td>An array that holds all the phone numbers associated to the contact</td>
+        </tr>
+        <tr>
+          <td>emails</td>
+          <td>An array that holds all the email addressed associated to the contact</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h4>Group</h4>
+  <div class="centered">
+    <table class="resource_properties">
+      <thead>
+        <tr>
+          <th>Property</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>id</td>
+          <td>The resource identifier of the group</td>
+        </tr>
+        <tr>
+          <td>name</td>
+          <td>The name of the group</td>
+        </tr>
+        <tr>
+          <td>owner</td>
+          <td>The user who has created this group that is the user who this group belongs to</td>
+        </tr>
+        <tr>
+          <td>contacts</td>
+          <td>An array that holds all the contacts of the group</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h4>Call</h4>
+  <div class="centered">
+    <table class="resource_properties">
+      <thead>
+        <tr>
+          <td>Property</td>
+          <td>Description</td>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Id</td>
+          <td>The resource identifier of the call</td>
+        </tr>
+        <tr>
+          <td>callerNumber</td>
+          <td>The numbers that has made the call</td>
+        </tr>
+        <tr>
+          <td>callerContact</td>
+          <td>The contact who has made the call</td>
+        </tr>
+        <tr>
+          <td>calledNumber</td>
+          <td>The number that has been called</td>
+        </tr>
+        <tr>
+          <td>calledContact</td>
+          <td>The contact who has been called</td>
+        </tr>
+        <tr>
+          <td>timestamp</td>
+          <td>Date and time in which tha call has been made</td>
+        </tr>
+        <tr>
+          <td>duration</td>
+          <td>Duration in seconds of the call</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
   <h3>JSON syntax</h3>
   <h4>Login</h4>
 
   ```json
   {
-    "justLogin": true;
+    "justLogin": true
   }
   ```
 
@@ -325,12 +526,12 @@
   }
   ```
 
-  <p><code>countryCode</code> is the national identified (i.e. country code for Italy is +39) and it must be provided without the <code>+</code> character. Then reading the number from left to right, <code>areaCode</code> and <code>prefix</code> are the first 2 groups of 3 digits and <code>phoneLine</code> holds the last 4 digits.</p>
+  <p><code>countryCode</code> is the national identified (e.g. country code for Italy is +39) and it must be provided without the <code>+</code> character. Then reading the number from left to right, <code>areaCode</code> and <code>prefix</code> are the first 2 groups of 3 digits and <code>phoneLine</code> holds the last 4 digits.</p>
 
   <p>When creating a phone number all the fields must mandatorily be provided except for <code>id</code> and <code>description</code>.</p>
 
   <h3>Errors</h3>
   <p>If the user tries to modify a resource that doesn't belongs to him a <b>401 Unauthorized</b> status code is returned.</p>
-  <p></p>If the resource has not been created due to either an authorization problem (i.e. the user tried to add contacts to a group that doesn't belong to him) or becaues the parent resource doesn't exist, the status code returned will be <b>400 bad request</b>.</pre>
+  <p></p>If the resource has not been created due to either an authorization problem (e.g. the user tried to add contacts to a group that doesn't belong to him) or becaues the parent resource doesn't exist, the status code returned will be <b>400 bad request</b>.</pre>
 </body>
 </html>

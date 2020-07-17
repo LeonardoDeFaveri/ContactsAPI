@@ -17,6 +17,10 @@ td {
     vertical-align: top;
 }
 
-td:nth-child(2) {
+table.requests td:nth-child(2) {
     width: 25%;
+}
+
+table.resource_properties td:first-child {
+    width: 20%;
 }
