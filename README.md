@@ -1,7 +1,7 @@
 <DOCTYPE html>
 <html>
 <head>
-  <link rel="stylesheet" href="src/main/webapp/Stylze.css">
+  <link rel="stylesheet" href="ReadmeStyle.css">
   <style>
     body {
       text-align: justify;
