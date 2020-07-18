@@ -2,11 +2,7 @@
 <html>
 <head>
   <link rel="stylesheet" href="src/main/webapp/Stylze.css">
-  <style>
-    body {
-      text-align: justify;
-    }
-  </style>
+  
 </head>
 <body>
   <h1>ContactsAPI</h1>
