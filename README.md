@@ -2,11 +2,6 @@
 <html>
 <head>
   <link rel="stylesheet" href="ReadmeStyle.css">
-  <style>
-    body {
-      text-align: justify;
-    }
-  </style>
 </head>
 <body>
   <h1>ContactsAPI</h1>
