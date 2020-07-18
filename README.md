@@ -1,7 +1,7 @@
 <DOCTYPE html>
 <html>
 <head>
-  <link rel="stylesheet" href="src/main/webapp/Style.css">
+  <link rel="stylesheet" href="src/main/webapp/Stylze.css">
 </head>
 <body>
   <h1>ContactsAPI</h1>
@@ -539,7 +539,7 @@
   </div>
   <p>If the status code indicates that the request has not been successfully resolved an error message will be provided as the body of the response</p>
 
-  <h3>Error message structure</h3>
+  <h4>Error message structure</h4>
   <div class="centered">
     <table class="error_structure">
       <thead>
@@ -577,5 +577,105 @@
     </table>
   </div>
   <p>Every error message has the same structure, only the <code>data</code> filed may not be present because it is used only in certain circumstances.</p>
+
+  <h4>Error codes</h4>
+  <div class="centered">
+    <table id="error_codes">
+      <thead>
+        <tr>
+          <th>Error code</th>
+          <th>Error name</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td>Registration Failure</td>
+          <td>An error occured while trying to register a new user</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td>Duplicated User</td>
+          <td>You tried to register a new user, but the email is already assigned to another one</td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td>Missing Authenticaction</td>
+          <td>Credentials have not been provided, or the <code>Authorization</code> header type is not <code>Basic</code></td>
+        </tr>
+        <tr>
+          <td>9</td>
+          <td>Failed Authentication</td>
+          <td>The credentials provided are wrong</td>
+        </tr>
+        <tr>
+          <td>10</td>
+          <td>Credentials Mismatch</td>
+          <td>The credentials used to authenticate are different from the one indicated in the <code>owner</code> or <code>associatedUser</code> field of the resource</td>
+        </tr>
+        <tr>
+          <td>8</td>
+          <td>Invalid Content Type</td>
+          <td>The <code>Contant-Type</code> header is wrong</td>
+        </tr>
+        <tr>
+          <td>4</td>
+          <td>Wrong Syntax</td>
+          <td>There are some syntax error in the json text or the needed data has not been provided</td>
+        </tr>
+        <tr>
+          <td>5</td>
+          <td>Insertion Failure</td>
+          <td>An error has occured while trying to create a new resource</td>
+        </tr>
+        <tr>
+          <td>6</td>
+          <td>Missing URL Component</td>
+          <td>The URL is incomplete</td>
+        </tr>
+        <tr>
+          <td>7</td>
+          <td>Wrong URL component</td>
+          <td>One or more components of the URL are wrong or invalid</td>
+        </tr>
+        <tr>
+          <td>11</td>
+          <td>Wrong Object Id</td>
+          <td>The id provided to identify the resource is invalid and cannot be used</td>
+        </tr>
+        <tr>
+          <td>17</td>
+          <td>Inacessible Or Non-existing Resource</td>
+          <td>The id provided doesn't identify any resource or you don't have the authorization needed to access that resource (e.g. the resource belongs to another user)</td>
+        </tr>
+        <tr>
+          <td>12</td>
+          <td>Data Not Modifiable</td>
+          <td>The resource cannot be modifies because the new resouce is identical to the old one</td>
+        </tr>
+        <tr>
+          <td>13</td>
+          <td>Data Not Modified</td>
+          <td>An error has occured while trying to modify a resource</td>
+        </tr>
+        <tr>
+          <td>14</td>
+          <td>Deletion Unathorized</td>
+          <td>The deletion cannot be accomplished because the resource belongs to another user</td>
+        </tr>
+        <tr>
+          <td>15</td>
+          <td>Deletion Failed</td>
+          <td>An error has occured while trying to delete a resource</td>
+        </tr>
+        <tr>
+          <td>16</td>
+          <td>Deletion Not Allowed</td>
+          <td>The deletion has failed because the resource cannot be deleted (e.g. the contact associated to a user cannot be deleted without deleting the user too)</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </body>
 </html>
