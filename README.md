@@ -1,8 +1,9 @@
 <DOCTYPE html>
 <html>
 <head>
+  <link rel="stylesheet" href="ReadmeStyle.css">
 </head>
-<body style="text-align: justify;">
+<body>
   <h1>ContactsAPI</h1>
   <p>This is a REST web service that can be used to manage a rubric through the net.</p>
 
