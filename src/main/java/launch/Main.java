@@ -14,10 +14,10 @@ public class Main {
         String webappDirLocation = "src/main/webapp/";
         Tomcat tomcat = new Tomcat();
 
-        //The port that we should run on can be set into an environment variable
-        //Look for that variable and default to 8080 if it isn't there.
+        // The port that we should run on can be set into an environment variable
+        // Look for that variable and default to 8080 if it isn't there.
         String webPort = System.getenv("PORT");
-        if(webPort == null || webPort.isEmpty()) {
+        if (webPort == null || webPort.isEmpty()) {
             webPort = "8080";
         }
 
@@ -30,8 +30,8 @@ public class Main {
         // Servlet 3.0 annotation will work
         File additionWebInfClasses = new File("target/classes");
         WebResourceRoot resources = new StandardRoot(ctx);
-        resources.addPreResources(new DirResourceSet(resources, "/WEB-INF/classes",
-                additionWebInfClasses.getAbsolutePath(), "/"));
+        resources.addPreResources(
+                new DirResourceSet(resources, "/WEB-INF/classes", additionWebInfClasses.getAbsolutePath(), "/"));
         ctx.setResources(resources);
 
         tomcat.start();

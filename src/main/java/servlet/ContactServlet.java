@@ -543,7 +543,7 @@ public class ContactServlet extends HttpServlet {
             out.write(ErrorHandler.getError(ErrorCodes.DATA_NOT_MODIFIABLE).toString());
           } else {
             if (this.dbManager.updateUser(user, newUserCredentials)) {
-              resp.setStatus(HttpServletResponse.SC_OK);
+              resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
             } else {
               resp.setStatus(HttpServletResponse.SC_CONFLICT);
               out.write(ErrorHandler.getError(ErrorCodes.DATA_NOT_MODIFIED).toString());
@@ -574,7 +574,7 @@ public class ContactServlet extends HttpServlet {
                       out.write(ErrorHandler.getError(ErrorCodes.WRONG_SYNTAX).toString());
                     } else {
                       if (this.dbManager.updateContactPhoneNumber(contactId, numberId, phoneNumber)) {
-                        resp.setStatus(HttpServletResponse.SC_OK);
+                        resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
                       } else {
                         resp.setStatus(HttpServletResponse.SC_CONFLICT);
                         out.write(ErrorHandler.getError(ErrorCodes.DATA_NOT_MODIFIED).toString());
@@ -599,7 +599,7 @@ public class ContactServlet extends HttpServlet {
                       out.write(ErrorHandler.getError(ErrorCodes.WRONG_SYNTAX).toString());
                     } else {
                       if (this.dbManager.updateContactEmail(contactId, oldEmail, newEmail)) {
-                        resp.setStatus(HttpServletResponse.SC_OK);
+                        resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
                       } else {
                         resp.setStatus(HttpServletResponse.SC_CONFLICT);
                         out.write(ErrorHandler.getError(ErrorCodes.DATA_NOT_MODIFIED).toString());
@@ -627,7 +627,7 @@ public class ContactServlet extends HttpServlet {
               } else {
                 if (user.equals(newContact.getOwner())) {
                   if (this.dbManager.updateContact(contactId, newContact)) {
-                    resp.setStatus(HttpServletResponse.SC_OK);
+                    resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
                   } else {
                     resp.setStatus(HttpServletResponse.SC_CONFLICT);
                     out.write(ErrorHandler.getError(ErrorCodes.DATA_NOT_MODIFIED).toString());
@@ -663,7 +663,7 @@ public class ContactServlet extends HttpServlet {
             } else {
               if (user.equals(group.getOwner())) {
                 if (this.dbManager.updateGroupName(groupId, group.getName())) {
-                  resp.setStatus(HttpServletResponse.SC_OK);
+                  resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
                 } else {
                   resp.setStatus(HttpServletResponse.SC_CONFLICT);
                   out.write(ErrorHandler.getError(ErrorCodes.DATA_NOT_MODIFIED).toString());

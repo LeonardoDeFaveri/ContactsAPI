@@ -1,7 +1,7 @@
 body {
     text-align: justify;
-    font-family: 'Roboto';
-    font-size: medium;
+    /*font-family: 'Roboto';
+    font-size: medium;*/
 }
 
 .centered {
@@ -25,4 +25,8 @@ table.requests td:nth-child(2) {
 
 table.resource_properties td:first-child {
     width: 20%;
+}
+
+#status_codes td:first-child {
+    width: 15%;
 }

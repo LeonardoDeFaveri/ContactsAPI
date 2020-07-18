@@ -253,7 +253,8 @@
   <p>When a resource is successfully deleted, <b>204 No Content</b> is returned.</p>
 
   <h3>Resources properties</h3>
-  <p>The json representation of all the resources uses the properties name as the key.</p>
+  <p>The json representation of all the resources uses the properties name as the key. When providing a resource definition it must not be put into the root of the json document, instead, it must be assigned to a field that has the same name of the resource (e.g. if creating a group, the group definition must be assigned to a field named <code>group</code>), or the plural name if a collection of resources is being provided (e.g. if adding phone numbers to a contact, every phone number definition must be put into an array and the array must be assigned to a field named <code>phoneNumbers</code>).</p>
+
   <h4>User</h4>
   <div class="centered">
     <table class="resource_properties">
@@ -495,7 +496,86 @@
   ```
 
   <h3>Errors</h3>
-  <p>If the user tries to modify a resource that doesn't belongs to him a <b>401 Unauthorized</b> status code is returned.</p>
-  <p></p>If the resource has not been created due to either an authorization problem (e.g. the user tried to add contacts to a group that doesn't belong to him) or becaues the parent resource doesn't exist, the status code returned will be <b>400 bad request</b>.</pre>
+  <h4>Possible status codes</h4>
+  <div class="centered">
+    <table id="status_codes">
+      <thead>
+        <tr>
+          <th>Status code</th>
+          <th>Meaning</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>200 OK</td>
+          <td>In get requests it indicates that the resource has been returned, while when logging in it indicates that the credentials are valids</td>
+        </tr>
+        <tr>
+          <td>201 Created</td>
+          <td>In POST requests it indicates that the resource has been successfully created</td>
+        </tr>
+        <tr>
+          <td>204 No Content</td>
+          <td>In PUT and DELETE requests it indicates that the resource has been sucessfully update or deleted</td>
+        </tr>
+        <tr>
+          <td>400 Bad Request</td>
+          <td>The request has not been accepted due to an error</td>
+        </tr>
+        <tr>
+          <td>401 Unauthorized</td>
+          <td>The credentials are missing or wrong or the resource belongs to another user so the request cannot be accepted</td>
+        </tr>
+        <tr>
+          <td>404 Not Found</td>
+          <td>The request cannot be accepted because it requires one or more resources that doesn't exist</td>
+        </tr>
+        <tr>
+          <td>409 Conflict</td>
+          <td>In PUT and DELETE requests it indicates that the rescource has not been update or deleted due to an error</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p>If the status code indicates that the request has not been successfully resolved an error message will be provided as the body of the response</p>
+
+  <h3>Error message structure</h3>
+  <div class="centered">
+    <table class="error_structure">
+      <thead>
+        <tr>
+          <th>Field</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>type</td>
+          <td>It can be <code>error</code>, <code>warning</code> or <code>info</code> and it indicates the severity of the error</td>
+        </tr>
+        <tr>
+          <td>code</td>
+          <td>A numeric value that indicates the type of error returned</td>
+        </tr>
+        <tr>
+          <td>title</td>
+          <td>A brief description of the kind of error that has occured</td>
+        </tr>
+        <tr>
+          <td>message</td>
+          <td>A more detailed description of the error and probable causes</td>
+        </tr>
+        <tr>
+          <td>suggestion</td>
+          <td>A suggestion to resolve the error or find out its causes</td>
+        </tr>
+        <tr>
+          <td>data</td>
+          <td>Additional useful information to resolve the error</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p>Every error message has the same structure, only the <code>data</code> filed may not be present because it is used only in certain circumstances.</p>
 </body>
 </html>
