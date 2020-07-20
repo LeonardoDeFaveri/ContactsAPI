@@ -170,7 +170,7 @@
             <b>phoneId:</b> id of a specific phoneNumber <hr>
             Phone number definition
           </td>
-          <td>Subsitutes one of the phone numbers of a contact with another, but only if the contact belongs to the user who is making the request</td>
+          <td>Substitutes one of the phone numbers of a contact with another, but only if the contact belongs to the user who is making the request</td>
         </tr>
         <tr>
           <td>/contacts/{contactId}/emails/{email}</td>
@@ -179,7 +179,7 @@
             <b>email:</b> old email<hr>
             Email definition
           </td>
-          <td>Subsitutes one of the emails of a contact with another, but only if the contact belongs to the user who is making the request</td>
+          <td>Substitutes one of the emails of a contact with another, but only if the contact belongs to the user who is making the request</td>
         </tr>
         <tr>
           <td>/groups/{groupId}</td>
