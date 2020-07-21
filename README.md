@@ -88,12 +88,12 @@
       </thread>
       <tbody>
         <tr>
-          <td>/user/</td>
+          <td>/users/</td>
           <td>Only login request</td>
           <td>Test the user's credentials</td>
         </tr>
         <tr>
-          <td>/user/</td>
+          <td>/users/</td>
           <td>Contact definition</td>
           <td>Creates a new user and the associated contact</td>
         </tr>
