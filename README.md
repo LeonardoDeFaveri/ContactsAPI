@@ -614,7 +614,17 @@
         <tr>
           <td>8</td>
           <td>Invalid Content Type</td>
-          <td>The <code>Contant-Type</code> header is wrong</td>
+          <td>The <code>Content-Type</code> header is wrong</td>
+        </tr>
+        <tr>
+          <td>18</td>
+          <td>Invalid character encoding</td>
+          <td>The charset specified int the <code>Content-Type</code> header is wrong</td>
+        </tr>
+        <tr>
+          <td>19</td>
+          <td>Missing Content-Type header</td>
+          <td>The <code>Content-Type</code> header has not been specified</td>
         </tr>
         <tr>
           <td>4</td>
