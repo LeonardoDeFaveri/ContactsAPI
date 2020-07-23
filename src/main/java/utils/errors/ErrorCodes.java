@@ -86,4 +86,13 @@ public interface ErrorCodes {
      * alla quale l'utente non può accedere. 
      */
     public final int INACCESSIBLE_OR_NON_EXISTING_RESOURCE = 17;
+    /**
+     * La codifica usata per i caratteri del body è errata.
+     */
+    public final int INVALID_CHARACTER_ENCODING = 18;
+    /**
+     * La richiesta è stata inviata senza specificare il valore
+     * dell'header 'Content-Type'.
+     */
+    public final int MISSIN_CONTENT_TYPE_HEADER = 19;
 }

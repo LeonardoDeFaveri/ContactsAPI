@@ -74,6 +74,14 @@ public class ErrorHandler {
                 error = getInaccessibleOrNonExistingResourceError();
                 break;
 
+            case ErrorCodes.INVALID_CHARACTER_ENCODING:
+                error = getInvalidCharacterEncodingError();
+                break;
+
+            case ErrorCodes.MISSIN_CONTENT_TYPE_HEADER:
+                error = getMissingContentTypeError();
+                break;
+
             default:
                 error = new JSONObject();
                 break;
@@ -252,6 +260,26 @@ public class ErrorHandler {
         error.put(ErrorKeys.MESSAGE, 
             "It is not possible to access this resource either because it doesn't exist or because the you don't have access to it");
         error.put(ErrorKeys.SUGGESTION, "Try checking the resource identifier provided");
+        return error;
+    }
+
+    private static JSONObject getInvalidCharacterEncodingError() {
+        JSONObject error = new JSONObject();
+        error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
+        error.put(ErrorKeys.TITLE, "Error while receiving the message");
+        error.put(ErrorKeys.CODE, ErrorCodes.INVALID_CHARACTER_ENCODING);
+        error.put(ErrorKeys.MESSAGE, "An error has occured while receiving the message. The character encoding is incorrect");
+        error.put(ErrorKeys.SUGGESTION, "Try changing the character encoding to 'utf-8'");
+        return error;
+    }
+
+    private static JSONObject getMissingContentTypeError() {
+        JSONObject error = new JSONObject();
+        error.put(ErrorKeys.TYPE, ErrorTypes.ERROR);
+        error.put(ErrorKeys.TITLE, "Error while receiving the message");
+        error.put(ErrorKeys.CODE, ErrorCodes.MISSIN_CONTENT_TYPE_HEADER);
+        error.put(ErrorKeys.MESSAGE, "An error has occured while receiving the message. The contentType has not been specified");
+        error.put(ErrorKeys.SUGGESTION, "Try specifying a value for the 'Content-Type' header");
         return error;
     }
 }

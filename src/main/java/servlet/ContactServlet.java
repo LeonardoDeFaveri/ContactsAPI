@@ -175,10 +175,22 @@ public class ContactServlet extends HttpServlet {
     resp.setCharacterEncoding("UTF-8");
 
     String contentType = req.getContentType();
-    if (contentType == null || !contentType.equals("application/json")) {
+    if (contentType == null) {
       resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-      out.write(ErrorHandler.getError(ErrorCodes.INVALID_CONTENT_TYPE).toString());
+      out.write(ErrorHandler.getError(ErrorCodes.MISSIN_CONTENT_TYPE_HEADER).toString());
       return;
+    } else {
+      String[] components = this.parseContentTypeHeader(contentType);
+      if (!components[0].equals("application/json")) {
+        resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+        out.write(ErrorHandler.getError(ErrorCodes.INVALID_CONTENT_TYPE).toString());
+        return;
+      }
+      if (components[1] != null && !components[1].toLowerCase().equals("utf-8")) {
+        resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+        out.write(ErrorHandler.getError(ErrorCodes.INVALID_CHARACTER_ENCODING).toString());
+        return;
+      }
     }
 
     JSONparser jsonParser;
@@ -490,10 +502,22 @@ public class ContactServlet extends HttpServlet {
     resp.setCharacterEncoding("UTF-8");
 
     String contentType = req.getContentType();
-    if (contentType == null || !contentType.equals("application/json")) {
+    if (contentType == null) {
       resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-      out.write(ErrorHandler.getError(ErrorCodes.INVALID_CONTENT_TYPE).toString());
+      out.write(ErrorHandler.getError(ErrorCodes.MISSIN_CONTENT_TYPE_HEADER).toString());
       return;
+    } else {
+      String[] components = this.parseContentTypeHeader(contentType);
+      if (!components[0].equals("application/json")) {
+        resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+        out.write(ErrorHandler.getError(ErrorCodes.INVALID_CONTENT_TYPE).toString());
+        return;
+      }
+      if (components[1] != null && !components[1].toLowerCase().equals("utf-8")) {
+        resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+        out.write(ErrorHandler.getError(ErrorCodes.INVALID_CHARACTER_ENCODING).toString());
+        return;
+      }
     }
 
     JSONparser jsonParser;
@@ -946,5 +970,25 @@ public class ContactServlet extends HttpServlet {
     } else {
       return null;
     }
+  }
+
+  /**
+   * Separa il contentType dal charset.
+   * 
+   * @param contentType valore dell'header Content-Type della
+   *    richiesta http
+   * 
+   * @return array contenente le diverse componenti dell'header
+   */
+  private String[] parseContentTypeHeader(String contentType) {
+    String[] components = {null, null};
+    if (contentType.contains(";")) {
+      String[] tmp = contentType.split(";");
+      components[0] = tmp[0].trim();
+      components[1] = tmp[1].split("=")[1].trim();
+    } else {
+      components[1] = contentType;
+    }
+    return components;
   }
 }

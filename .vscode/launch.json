@@ -12,10 +12,10 @@
         },
         {
             "type": "java",
-            "name": "Debug (Launch)-Main<contacts>",
+            "name": "Debug (Launch)-Main<Contacts>",
             "request": "launch",
             "mainClass": "launch.Main",
-            "projectName": "contacts"
+            "projectName": "Contacts"
         }
     ]
 }
