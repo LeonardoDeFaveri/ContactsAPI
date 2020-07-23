@@ -186,7 +186,7 @@ public class ContactServlet extends HttpServlet {
         out.write(ErrorHandler.getError(ErrorCodes.INVALID_CONTENT_TYPE).toString());
         return;
       }
-      if (components[1] != null && !components[1].toLowerCase().equals("utf-8")) {
+      if (components[1] != null && !components[1].toLowerCase().equals("charset=utf-8")) {
         resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         out.write(ErrorHandler.getError(ErrorCodes.INVALID_CHARACTER_ENCODING).toString());
         return;
@@ -513,7 +513,7 @@ public class ContactServlet extends HttpServlet {
         out.write(ErrorHandler.getError(ErrorCodes.INVALID_CONTENT_TYPE).toString());
         return;
       }
-      if (components[1] != null && !components[1].toLowerCase().equals("utf-8")) {
+      if (components[1] != null && !components[1].toLowerCase().equals("charset=utf-8")) {
         resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         out.write(ErrorHandler.getError(ErrorCodes.INVALID_CHARACTER_ENCODING).toString());
         return;
@@ -985,9 +985,11 @@ public class ContactServlet extends HttpServlet {
     if (contentType.contains(";")) {
       String[] tmp = contentType.split(";");
       components[0] = tmp[0].trim();
-      components[1] = tmp[1].split("=")[1].trim();
+      if (components.length == 2) {
+        components[1] = tmp[1].trim();
+      }
     } else {
-      components[1] = contentType;
+      components[0] = contentType;
     }
     return components;
   }
