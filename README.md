@@ -505,7 +505,7 @@
       <tbody>
         <tr>
           <td>200 OK</td>
-          <td>In get requests it indicates that the resource has been returned, while when logging in it indicates that the credentials are valids</td>
+          <td>In get requests it indicates that the resource has been returned, while when logging in it indicates that the credentials are valid</td>
         </tr>
         <tr>
           <td>201 Created</td>
@@ -513,7 +513,7 @@
         </tr>
         <tr>
           <td>204 No Content</td>
-          <td>In PUT and DELETE requests it indicates that the resource has been sucessfully update or deleted</td>
+          <td>In PUT and DELETE requests it indicates that the resource has been sucessfully updated or deleted</td>
         </tr>
         <tr>
           <td>400 Bad Request</td>
@@ -525,11 +525,11 @@
         </tr>
         <tr>
           <td>404 Not Found</td>
-          <td>The request cannot be accepted because it requires one or more resources that doesn't exist</td>
+          <td>The request cannot be accepted because it requires one or more resources that don't exist</td>
         </tr>
         <tr>
           <td>409 Conflict</td>
-          <td>In PUT and DELETE requests it indicates that the rescource has not been update or deleted due to an error</td>
+          <td>In PUT and DELETE requests it indicates that the rescource has not been updated or deleted due to an error</td>
         </tr>
       </tbody>
     </table>
