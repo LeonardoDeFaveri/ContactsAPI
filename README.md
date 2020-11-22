@@ -43,7 +43,7 @@
         </tr>
         <tr>
           <td>/contacts/{contactId}</td>
-          <td><b>contactId:</b> the id a contact</td>
+          <td><b>contactId:</b> the id of a contact</td>
           <td>Returns a specific contact, but only if that contact belongs to the user who is making the request</td>
         </tr>
         <tr>
