@@ -449,7 +449,7 @@
         </tr>
         <tr>
           <td>timestamp</td>
-          <td>Date and time in which tha call has been made</td>
+          <td>Date and time in which the call has been made</td>
         </tr>
         <tr>
           <td>duration</td>
