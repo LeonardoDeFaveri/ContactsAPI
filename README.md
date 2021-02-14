@@ -573,7 +573,7 @@
       </tbody>
     </table>
   </div>
-  <p>Every error message has the same structure, only the <code>data</code> filed may not be present because it is used only in certain circumstances.</p>
+  <p>Every error message has the same structure, only the <code>data</code> filed may not be present because it is only used in certain circumstances.</p>
 
   <h4>Error codes</h4>
   <div class="centered">
