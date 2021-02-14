@@ -264,7 +264,7 @@
       <tbody>
         <tr>
           <td>email</td>
-          <td>The emaild used to identify le user</td>
+          <td>The emaild used to identify the user</td>
         </tr>
         <tr>
           <td>password</td>
