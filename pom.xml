@@ -8,7 +8,7 @@
   <name>Contact Maven web service</name>
   <url>https://github.com/LeonardoDeFaveri/ContactsAPI.git</url>
   <properties>
-    <tomcat.version>8.5.61</tomcat.version>
+    <tomcat.version>8.5.63</tomcat.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <java.version>14</java.version>
     <maven.compiler.source>14</maven.compiler.source>
