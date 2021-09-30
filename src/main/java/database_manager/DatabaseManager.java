@@ -18,8 +18,10 @@ import models.*;
 public class DatabaseManager {
     private final String SERVER_URL = "jdbc:mariadb://truecloud.ddns.net:3306";
     private final String DATABASE_NAME = "contacts";
-    private final String USER = "contacts";
-    private final String PASSWORD = "Qny2U1lWz76jnqjg";
+    private final String USER = "leonardo";
+    private final String PASSWORD = "1Tardis13Dottori";
+    //private final String USER = "contacts";
+    //private final String PASSWORD = "Qny2U1lWz76jnqjg";
     private final Connection connection;
 
     public DatabaseManager() throws SQLException {

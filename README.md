@@ -7,9 +7,8 @@
   <h2>Documentation</h2>
   <p>
     <b>Endpoint:</b>
-    <i>http://truecloud.ddns.net:9000/contacts/api/</i>
+    <i>https://truecloud.ddns.net:8080/contacts/api/</i>
   </p>
-  <p>It is important to remember that the web service doesn't support the HTTPS protocol, so it is not allowed to use <i>https://truecloud.ddns.net:9000/contacts/api/</i> as the endpoint.</p>
 
   <h3>Data transmission</h3>
   <p>When data needs to be transfered into the HTTP request body (e.g. POST, PUT requests) it must be defined using the <a href="https://www.json.org" target="_blank">JSON</a> language.</p>
